@@ -23,7 +23,7 @@
  *         type: string
  */
 
-const MetaFields = function(schema, options) {
+const MetaFields = function(schema) {
     schema.add({
         meta: {
             activo: {
@@ -57,7 +57,7 @@ const MetaFields = function(schema, options) {
     // Trigger al momento de actualizar el documento
     schema.post("findOneAndUpdate", function(doc) {
         console.log("modificado");
-        this.update({_id: doc.id}, {$set: {"meta.modificado": Date.now()}}, function(err, data) {
+        this.update({_id: doc.id}, {$set: {"meta.modificado": Date.now()}}, function() {
             return;
         });
     });
