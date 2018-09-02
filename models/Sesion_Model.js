@@ -24,6 +24,14 @@ const Sesion = new mongoose.Schema({
     token: {
         type: String,
         required: true
+    },
+    fecha: {
+        type: Date,
+        default: Date()
+    },
+    vigente: {
+        type: Boolean,
+        default: true
     }
 }, {versionKey: false});
 
@@ -39,6 +47,34 @@ Sesion.statics.iniciarSesion = function(usuario) {
             resolve({
                 usuario: usuario,
                 token: token
+            });
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+};
+
+Sesion.statics.verificarSesion = function(sesion) {
+    return new Promise((resolve, reject) => {
+        TokenHelper.verifyToken(sesion)
+            .then((data) => resolve(data))
+            .catch((err) => reject(err));
+    });
+};
+
+Sesion.statics.cerrarSesion = function(token) {
+    const db = this;
+
+    return new Promise((resolve, reject) => {
+        db.findOneAndUpdate({
+            token: token
+        }, {
+            vigente: false
+        }, {
+            new: true
+        }).then((sesion) => {
+            resolve({
+                sesion: sesion
             });
         }).catch((err) => {
             reject(err);

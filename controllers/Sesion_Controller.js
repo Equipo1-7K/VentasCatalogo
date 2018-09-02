@@ -69,6 +69,69 @@ const Sesion_Controller = (function() {
         });
     };
 
+    Sesion_Controller.prototype.verificarSesion = (req, res) => {
+        let response = new HttpReponse(res);
+
+        DataValidator.validate([
+            {fieldName: "token", value: req.body.token, validator: "String", required: true}
+        ]).then((data) => {
+            Sesion_Model.findOne({token: data.token, vigente: true})
+                .then((sesion) => {
+                    if (!sesion) {
+                        response.unauthorized({
+                            message: "Token inválido"
+                        });
+                    } else {
+                        Sesion_Model.verificarSesion(sesion)
+                            .then((sesion) => {
+                                response.success(sesion.payload);
+                            })
+                            .catch(() => {
+                                Sesion_Model.cerrarSesion(data.token)
+                                    .then(() => {
+                                        response.unauthorized({
+                                            message: "Token expirado"
+                                        });
+                                    })
+                                    .catch((err) => {
+                                        console.error(err);
+                                        response.error(err);
+                                    });
+                            });
+                    }
+                })
+                .catch((err) => {
+                    console.error(err);
+                    response.error(err);
+                });
+        }).catch((err) => {
+            response.badRequest(err);
+        });
+    };
+
+    Sesion_Controller.prototype.cerrarSesion = (req, res) => {
+        let response = new HttpReponse(res);
+
+        DataValidator.validate([
+            {fieldName: "token", value: req.body.token, validator: "String", required: true}
+        ]).then((data) => {
+            Sesion_Model.cerrarSesion(data.token)
+                .then((sesionCerrada) => {
+                    response.success({
+                        message: "Sesion cerrada con éxito",
+                        data: sesionCerrada
+                    });
+                })
+                .catch((err) => {
+                    console.error(err);
+                    response.error(err);
+                });
+        }).catch((err) => {
+            console.error(err);
+            response.error(err);
+        });
+    };
+
     return Sesion_Controller;
 })();
 

@@ -45,4 +45,84 @@ const Sesion_Controller = new (require("../controllers/Sesion_Controller"))();
  */
 router.post("/iniciar", Sesion_Controller.iniciarSesion);
 
+/**
+ * @swagger
+ * /sesion/verificar:
+ *   post:
+ *     tags:
+ *       - Sesion
+ *     summary: Verificar Sesion
+ *     description: Verifica manualmente si un token de sesión es válido
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: body
+ *         description: Datos de la verificación de la sesión
+ *         in: body
+ *         required: true
+ *         type: string
+ *         schema:
+ *           type: object
+ *           properties:
+ *             token:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: La sesión
+ *         type: object
+ *         allOf:
+ *           - $ref: '#/definitions/Response'
+ *           - type: object
+ *             properties:
+ *               data:
+ *                 type: object
+ *                 allOf:
+ *                   - $ref: '#/definitions/Usuario'
+ *                   - type: object
+ *                     properties: 
+ *                       token: 
+ *                         type: string
+ */
+router.post("/verificar", Sesion_Controller.verificarSesion);
+
+/**
+ * @swagger
+ * /sesion/cerrar:
+ *   post:
+ *     tags:
+ *       - Sesion
+ *     summary: Cerrar Sesion
+ *     description: Cierra sesión de un token
+ *     produces:
+ *       - application/json
+ *     parameters:
+ *       - name: body
+ *         description: Datos de la verificación de la sesión
+ *         in: body
+ *         required: true
+ *         type: string
+ *         schema:
+ *           type: object
+ *           properties:
+ *             token:
+ *               type: string
+ *     responses:
+ *       200:
+ *         description: La sesión
+ *         type: object
+ *         allOf:
+ *           - $ref: '#/definitions/Response'
+ *           - type: object
+ *             properties:
+ *               data:
+ *                 type: object
+ *                 allOf:
+ *                   - $ref: '#/definitions/Usuario'
+ *                   - type: object
+ *                     properties: 
+ *                       token: 
+ *                         type: string
+ */
+router.post("/cerrar", Sesion_Controller.cerrarSesion);
+
 module.exports = router;
