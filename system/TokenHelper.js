@@ -5,22 +5,17 @@ const secretKey = "A8vrbPDccsVuSaApnP5x5h83Ld9nU6XKjZ9ChTDaDFejEGCvfnc5LhFxd8HFt
 const TokenHelper = { };
 
 TokenHelper.createToken = function(user) {
-    console.log(user);
-    return jwt.sign({payload: user, expiresIn: "1d"}, secretKey, {
-        expiresIn: 86400 // expires in 24 hours
+    return jwt.sign({payload: user}, secretKey, {
+        expiresIn: "1h"
     });
 };
 
-TokenHelper.verifyToken = function(token) {
+TokenHelper.verifyToken = function(sesion) {
     return new Promise((resolve, reject) => {
-        if (!token) {
-            reject("Sin token");
-        } else {
-            try {
-                resolve(jwt.verify(token, secretKey));
-            } catch (err) {
-                reject(err);
-            }
+        try {
+            resolve(jwt.verify(sesion.token, secretKey));
+        } catch (e) {
+            reject(e);
         }
     });
 };
