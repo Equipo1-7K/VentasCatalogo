@@ -1,0 +1,99 @@
+Crear usuario
+- El usuario ingresa sus datos
+- Una vez registrado, se envía un correo con un token de confirmación
+- Cuando el acepta, el usuario queda registrado de manera permanente
+= Registrar usuario con datos nuevos y envíar confirmación
+= Recibir token para confirmar usuario
+= Enviar correo con token de confirmación
+
+Iniciar sesión
+- El usuario ingresa su usuario y contraseña
+= Iniciar sesión a partir de usuario y contraseña
+
+Agregar Productos
+- El usuario ingresa los datos del producto que venderá.
+- El usuario toma una fotografía del producto que venderá o la selecciona de la galería.
+- Una vez ingresado, sube todos los datos.
+= Agregar productos a partir de diversos campos.
+
+Agregar Clientes
+- El usuario agrega clientes a partir de sus datos
+= Agregar cliente
+
+Crear pedido
+- El usuario selecciona un cliente
+- Una vez seleccionado, selecciona los productos y la cantidad de estos
+- Una vez seleccionados los productos, se selecciona el tipo de metodoPago
+    - Si es de contado, se toma como tal y se termina el proceso
+    - Si es a crédito, se selecciona el día de la semana o mes y se selecciona la frecuencia
+        - Se toma una cantidad a pagar en cada a bono.
+= Obtener listado de clientes
+= Obtener listado de productos
+= Crear pedido a partir del clente, los productos y la cantidad, así como el tipo de pago y sus características
+
+Pagar Abono
+- El usuario selecciona un pedido a abonar
+- El usuario ingresa la cantidad pagada por el cliente
+= Obtener listado de pedidos a abonar
+= Abonar a un pedido
+
+== Reportes ==
+Abonos por cobrar por dia, semana y mes
+Abonos cobrados por dia, semana y mes
+Abonos faltantes de cobrar de hoy
+
+== Modelos ==
+Usuarios
+- correo
+- password
+- nombre
+- apelidos
+- destinos
+    - [Destinos]
+- metodosPago
+    - [MetodosPago]
+- carrito
+    - productoId
+    - cantidad
+- confirmado
+
+Destinos
+- estado
+- municipio
+- colonia
+- calle
+- noExterno
+- noInterno
+- referencia
+
+MetodosPago
+- nombre
+- noTarjeta
+- nombreCuentahabiente
+- fechaVencimiento
+- cvv
+
+TokensRegistro
+- token
+- usuario
+    - {Usuarios}
+
+Productos
+- nombre
+- stock
+- precio
+- iva
+- imagen
+- caracteristicas
+    - colores
+    - tamanos
+
+Compras
+- cliente
+    - {Clientes}
+- productos
+    - idProducto
+    - cantidad
+- destino
+- metodoEnvio
+- metodoPago
