@@ -13,7 +13,6 @@ const DataValidator = function(validations) {
         const invalidData = { };
 
         validations.forEach(element => {
-            console.log(element);
             if (!ValidatorMethods[element.validator]) {
                 console.error(`Validator ${element.validator} does not exist`);
             }
