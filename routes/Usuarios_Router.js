@@ -7,11 +7,14 @@
 
 const router = require("express").Router();
 const Usuarios_Controller = new (require("../controllers/Usuarios_Controller"))();
+const Sesion = new (require("../controllers/Sesion_Controller"))();
 
 /**
  * @swagger
  * /usuarios/{id}:
  *   get:
+ *     security:
+ *       - JWT: []
  *     tags:
  *       - Usuarios
  *     summary: Obtener usuario por id
@@ -38,7 +41,7 @@ const Usuarios_Controller = new (require("../controllers/Usuarios_Controller"))(
  *                   type: object
  *                   $ref: '#/definitions/Usuario'
  */
-router.get("/:id", Usuarios_Controller.obtener);
+router.get("/:id", Sesion.verificarSesion, Usuarios_Controller.obtener);
 
 /**
  * @swagger
@@ -63,56 +66,5 @@ router.get("/:id", Usuarios_Controller.obtener);
  *         description: El usuario agregado
  */
 router.post("/", Usuarios_Controller.registrar);
-
-/**
- * @swagger
- * /destinos/{id}:
- *   put:
- *     tags:
- *       - Destinos
- *     summary: Modificar destino
- *     description: Modifica un destino
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: id
- *         description: Id del destino
- *         in: path
- *         required: true
- *         type: string
- *       - name: body
- *         description: Cuerpo de la solicitud
- *         in: body
- *         required: true
- *         type: string
- *         schema:
- *           $ref: '#/definitions/DestinoNuevo'
- *     responses:
- *       200:
- *         description: El tipo de tag modificado
- */
-// router.put("/:id", Usuarios_Controller.modificar);
-
-/**
- * @swagger
- * /destinos/{id}:
- *   delete:
- *     tags:
- *       - Destinos
- *     summary: Eliminar destino
- *     description: Elimina un destino
- *     produces:
- *       - application/json
- *     parameters:
- *       - name: id
- *         description: Id del tipo de tag
- *         in: path
- *         required: true
- *         type: string
- *     responses:
- *       200:
- *         description: El tipo de tag eliminado
- */
-// router.delete("/:id", Usuarios_Controller.eliminar);
 
 module.exports = router;
