@@ -49,23 +49,14 @@ router.post("/iniciar", Sesion_Controller.iniciarSesion);
  * @swagger
  * /sesion/verificar:
  *   post:
+ *     security:
+ *       - JWT: []
  *     tags:
  *       - Sesion
  *     summary: Verificar Sesion
- *     description: Verifica manualmente si un token de sesión es válido
+ *     description: Verifica manualmente si un token de sesión es válido, el token se envía por header
  *     produces:
  *       - application/json
- *     parameters:
- *       - name: body
- *         description: Datos de la verificación de la sesión
- *         in: body
- *         required: true
- *         type: string
- *         schema:
- *           type: object
- *           properties:
- *             token:
- *               type: string
  *     responses:
  *       200:
  *         description: La sesión
@@ -83,7 +74,7 @@ router.post("/iniciar", Sesion_Controller.iniciarSesion);
  *                       token: 
  *                         type: string
  */
-router.post("/verificar", Sesion_Controller.verificarSesion);
+router.post("/verificar", Sesion_Controller.verificarSesion, Sesion_Controller.verificarSesionManual);
 
 /**
  * @swagger
