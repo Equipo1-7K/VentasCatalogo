@@ -17,6 +17,11 @@
  *         type: string
  *       apMaterno:
  *         type: string
+ *       productos:
+ *         type: array
+ *         items:
+ *           type: object
+ *           $ref: '#/definitions/Producto'
  *   UsuarioNuevo:
  *     type: object
  *     required:
@@ -67,14 +72,23 @@ const Usuario = new mongoose.Schema({
     sal: {
         type: String,
         required: true
-    }
-}, {versionKey: false});
+    },
+    productos: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Productos"
+    }]
+});
 
 Usuario.statics.obtenerPorId = function(id) {
     const db = this;
     
     return new Promise((resolve, reject) => {
         db.findOne({_id: id})
+            .select({
+                contrasena: false,
+                sal: false,
+                productos: false
+            })
             .then((data) => { resolve(data); })
             .catch((err) => { reject(err); });
     });
@@ -92,6 +106,28 @@ Usuario.statics.registrar = function(usuarioNuevo) {
             .catch((err) => { reject(err); });
     });
 };
+
+Usuario.statics.asociarProducto = function(id, idProducto) {
+    const db = this;
+
+    console.log(idProducto);
+
+    return new Promise((reject, response) => {
+        db.findOneAndUpdate({
+            _id: id
+        }, {
+            $push: {
+                productos: mongoose.Types.ObjectId(idProducto)
+            }
+        }, {
+            new: true
+        }).then((usuario) => {
+            resolve(usuario);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+}
 
 Usuario.plugin(MetaFields);
 
