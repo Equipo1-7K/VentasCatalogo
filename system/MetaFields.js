@@ -45,21 +45,10 @@ const MetaFields = function(schema) {
         }
     });
 
-    // Trigger al momento de crear el documento
-    schema.pre("save", function(next) {
-        console.log(this);
-        this.meta.creado = Date.now();
-        this.meta.modificado = Date.now();
-        next();
-    });
-
-
-    // Trigger al momento de actualizar el documento
-    schema.post("findOneAndUpdate", function(doc) {
-        console.log("modificado");
-        this.update({_id: doc.id}, {$set: {"meta.modificado": Date.now()}}, function() {
-            return;
-        });
+    schema.set("versionKey", false);
+    schema.set("timestamps", {
+        createdAt: "meta.creado",
+        updatedAt: "meta.modificado"
     });
 };
 
