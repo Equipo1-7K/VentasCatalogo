@@ -1,8 +1,6 @@
 const mongoose = require("mongoose");
 const app = require("./app");
 
-// console.log(require("express-list-endpoints")(app));
-
 const port = 3000;
 mongoose.Promise = global.Promise;
 
