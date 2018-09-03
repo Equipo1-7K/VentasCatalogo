@@ -69,11 +69,10 @@ const Sesion_Controller = (function() {
         });
     };
 
-    Sesion_Controller.prototype.verificarSesion = (req, res) => {
+    Sesion_Controller.prototype.verificarSesion = (req, res, next) => {
         let response = new HttpReponse(res);
-
         DataValidator.validate([
-            {fieldName: "token", value: req.body.token, validator: "String", required: true}
+            {fieldName: "token", value: req.headers.authorization, validator: "String", required: true}
         ]).then((data) => {
             Sesion_Model.findOne({token: data.token, vigente: true})
                 .then((sesion) => {
@@ -84,7 +83,8 @@ const Sesion_Controller = (function() {
                     } else {
                         Sesion_Model.verificarSesion(sesion)
                             .then((sesion) => {
-                                response.success(sesion.payload);
+                                req.user = sesion.payload;
+                                next();
                             })
                             .catch(() => {
                                 Sesion_Model.cerrarSesion(data.token)
@@ -108,6 +108,11 @@ const Sesion_Controller = (function() {
             response.badRequest(err);
         });
     };
+
+    Sesion_Controller.prototype.verificarSesionManual = (req, res) => {
+        const response = new HttpReponse(res);
+        response.success(req.user);
+    }
 
     Sesion_Controller.prototype.cerrarSesion = (req, res) => {
         let response = new HttpReponse(res);
