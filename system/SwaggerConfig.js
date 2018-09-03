@@ -11,6 +11,7 @@ module.exports = {
     },
     apis: [
         "./system/MetaFields.js",
+        "./system/TokenHelper.js",
         "./routes/*.js",
         "./models/*.js"
     ]

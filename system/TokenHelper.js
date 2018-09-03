@@ -1,3 +1,16 @@
+/**
+ * @swagger
+ * securityDefinitions:
+ *   JWT:
+ *     description: ""
+ *     type: "apiKey"
+ *     name: "Authorization"
+ *     in: "header"
+ * 
+ * security:
+ *   JWT: []
+ */
+
 const jwt = require("jsonwebtoken");
 
 const secretKey = "A8vrbPDccsVuSaApnP5x5h83Ld9nU6XKjZ9ChTDaDFejEGCvfnc5LhFxd8HFtxWrcb3KaXWWSd6zhwmWtfcEHbKYkkaNbL6BRnq6253KBHmQzEwm8HxkhjBg9L8WK3Ah";
