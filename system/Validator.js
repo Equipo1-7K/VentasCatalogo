@@ -16,9 +16,12 @@ const DataValidator = function(validations) {
             if (!ValidatorMethods[element.validator]) {
                 console.error(`Validator ${element.validator} does not exist`);
             }
+            if ((element.value === null || element.value === undefined) && element.required) {
+                invalidData[element.fieldName] = element.value;
+            }
             else if (ValidatorMethods[element.validator](element.value)) {
                 validatedData[element.fieldName] = element.value;
-            } else if (element.required) {
+            } else {
                 invalidData[element.fieldName] = element.value;
             }
         });
