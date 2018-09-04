@@ -66,7 +66,7 @@ Producto.statics.obtenerPorId = function(id) {
             .then((producto) => { resolve(producto); })
             .catch((err) => { reject(err); });
     });
-}
+};
 
 Producto.statics.obtenerPorUsuario = function(id) {
     return new Promise((resolve, reject) => {
@@ -74,11 +74,11 @@ Producto.statics.obtenerPorUsuario = function(id) {
             .select({_id: false, productos: true})
             .populate("productos")
             .then((productos) => { resolve(productos.productos); })
-            .catch((err) => { reject(err); })
+            .catch((err) => { reject(err); });
     });
-}
+};
 
-Producto.statics.agregarProducto = function(idUsuario, producto) {
+Producto.statics.agregar = function(idUsuario, producto) {
     const db = this;
 
     console.log(producto);
@@ -88,13 +88,13 @@ Producto.statics.agregarProducto = function(idUsuario, producto) {
             .then((producto) => {
                 Usuario_Model.asociarProducto(idUsuario, producto.id)
                     .then(() => { resolve(producto); })
-                    .catch((err) => { reject(err); })
+                    .catch((err) => { reject(err); });
             })
             .catch((err) => {
-                reject(err)
-            })
+                reject(err);
+            });
     });
-}
+};
 
 Producto.plugin(MetaFields);
 

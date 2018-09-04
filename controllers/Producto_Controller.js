@@ -1,6 +1,6 @@
 const HttpReponse = require("../system/HttpResponse");
 const DataValidator = require("../system/Validator");
-const Producto_Model = require("../models/Producto_Model")
+const Producto_Model = require("../models/Producto_Model");
 
 const Producto_Controller = (function() {
     function Producto_Controller() {}
@@ -16,7 +16,7 @@ const Producto_Controller = (function() {
         }).catch((err) => {
             response.badRequest(err);
         });
-    }
+    };
 
     Producto_Controller.prototype.obtenerPorUsuario = (req, res) => {
         const response = new HttpReponse(res);
@@ -28,7 +28,7 @@ const Producto_Controller = (function() {
             .catch((err) => {
                 response.error(err);
             });
-    }
+    };
 
     Producto_Controller.prototype.agregar = (req, res) => {
         const response = new HttpReponse(res);
@@ -40,13 +40,13 @@ const Producto_Controller = (function() {
         ]).then((data) => {
             console.log(data);
             console.log(req.user);
-            Producto_Model.agregarProducto(req.user._id, data)
+            Producto_Model.agregar(req.user._id, data)
                 .then((producto) => { response.success(producto); })
                 .catch((err) => { response.error(err); });
         }).catch((err) => {
             response.badRequest(err);
         });
-    }
+    };
 
     return Producto_Controller;
 })();
