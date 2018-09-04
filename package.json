@@ -1,7 +1,7 @@
 {
-  "name": "restaurantnfcbackend",
+  "name": "ventascatalogobackend",
   "version": "1.0.0",
-  "description": "API del sistema de RestaurantNFC",
+  "description": "API del sistema de Ventas por Catálogo",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
