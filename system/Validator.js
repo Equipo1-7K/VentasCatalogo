@@ -69,6 +69,14 @@ ValidatorMethods.Phone = function(data) {
     }
 };
 
+ValidatorMethods.PostalCode = function(data) {
+    try {
+        return (new String(data)).match(Regex.CP);
+    } catch(e) {
+        return false;
+    }
+};
+
 ValidatorMethods.Email = function(data) {
     try {
         return (new String(data)).match(Regex.Email);

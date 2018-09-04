@@ -36,13 +36,13 @@ const Cliente_Controller = (function() {
             {fieldName: "nombre", value: req.body.nombre, validator: "String", required: true},
             {fieldName: "apPaterno", value: req.body.apPaterno, validator: "String", required: true},
             {fieldName: "apMaterno", value: req.body.apMaterno, validator: "String", required: true},
-            {fieldName: "telefono", value: req.body.telefono, validator: "String", required: true},
-            {fieldName: "correo", value: req.body.correo, validator: "String", required: true},
+            {fieldName: "telefono", value: req.body.telefono, validator: "Phone", required: true},
+            {fieldName: "correo", value: req.body.correo, validator: "Email", required: true},
         ]).then((data1) => {
             DataValidator.validate([
                 {fieldName: "estado", value: req.body.domicilio.estado, validator: "String", required: true},
                 {fieldName: "municipio", value: req.body.domicilio.municipio, validator: "String", required: true},
-                {fieldName: "cp", value: req.body.domicilio.cp, validator: "String", required: true},
+                {fieldName: "cp", value: req.body.domicilio.cp, validator: "PostalCode", required: true},
                 {fieldName: "colonia", value: req.body.domicilio.colonia, validator: "String", required: true},
                 {fieldName: "calle", value: req.body.domicilio.calle, validator: "String", required: true},
                 {fieldName: "noExterno", value: req.body.domicilio.noExterno, validator: "String", required: true},
@@ -56,7 +56,7 @@ const Cliente_Controller = (function() {
                     .then((producto) => { response.success(producto); })
                     .catch((err) => { response.error(err); });
             }).catch((err) => {
-                throw err;
+                response.badRequest(err);
             });
         }).catch((err) => {
             response.badRequest(err);

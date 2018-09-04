@@ -28,7 +28,9 @@ const Sesion_Controller = (function() {
                         }).select({
                             meta: false,
                             contrasena: false,
-                            sal: false
+                            sal: false,
+                            productos: false,
+                            clientes: false
                         }).then((usuario) => {
                             // Si la contraseña es correcta
                             if (usuario) {
@@ -105,14 +107,20 @@ const Sesion_Controller = (function() {
                     response.error(err);
                 });
         }).catch((err) => {
-            response.badRequest(err);
+            if (err.token === undefined) {
+                response.badRequest({
+                    message: "Servicio protegido por token, inicie sesión antes de continuar"
+                });
+            } else {
+                response.badRequest(err);
+            }
         });
     };
 
     Sesion_Controller.prototype.verificarSesionManual = (req, res) => {
         const response = new HttpReponse(res);
         response.success(req.user);
-    }
+    };
 
     Sesion_Controller.prototype.cerrarSesion = (req, res) => {
         let response = new HttpReponse(res);
