@@ -22,6 +22,11 @@
  *         items:
  *           type: object
  *           $ref: '#/definitions/Producto'
+ *       clientes:
+ *         type: array
+ *         items:
+ *           type: object
+ *           $ref: '#/definitions/Cliente'
  *   UsuarioNuevo:
  *     type: object
  *     required:
@@ -76,7 +81,11 @@ const Usuario = new mongoose.Schema({
     productos: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Productos"
-    }]
+    }],
+    clientes: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Clientes"
+    }],
 });
 
 Usuario.statics.obtenerPorId = function(id) {
@@ -112,7 +121,7 @@ Usuario.statics.asociarProducto = function(id, idProducto) {
 
     console.log(idProducto);
 
-    return new Promise((reject, response) => {
+    return new Promise((resolve, reject) => {
         db.findOneAndUpdate({
             _id: id
         }, {
@@ -127,7 +136,29 @@ Usuario.statics.asociarProducto = function(id, idProducto) {
             reject(err);
         });
     });
-}
+};
+
+Usuario.statics.asociarCliente = function(id, idCliente) {
+    const db = this;
+
+    console.log(idCliente);
+
+    return new Promise((resolve, reject) => {
+        db.findOneAndUpdate({
+            _id: id
+        }, {
+            $push: {
+                clientes: mongoose.Types.ObjectId(idCliente)
+            }
+        }, {
+            new: true
+        }).then((usuario) => {
+            resolve(usuario);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+};
 
 Usuario.plugin(MetaFields);
 
