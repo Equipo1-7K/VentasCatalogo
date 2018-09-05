@@ -93,5 +93,13 @@ ValidatorMethods.MongoID = function(data) {
     }
 };
 
+ValidatorMethods.Object = function(data) {
+    return ((typeof data === "object") && (data !== null));
+};
+
+ValidatorMethods.Array = function(data) {
+    return Array.isArray(data);
+};
+
 module.exports.validate = DataValidator;
 module.exports.Regex = Regex;
