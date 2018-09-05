@@ -86,6 +86,10 @@ const Usuario = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "Clientes"
     }],
+    ventas: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Ventas"
+    }],
 });
 
 Usuario.statics.obtenerPorId = function(id) {
@@ -149,6 +153,28 @@ Usuario.statics.asociarCliente = function(id, idCliente) {
         }, {
             $push: {
                 clientes: mongoose.Types.ObjectId(idCliente)
+            }
+        }, {
+            new: true
+        }).then((usuario) => {
+            resolve(usuario);
+        }).catch((err) => {
+            reject(err);
+        });
+    });
+};
+
+Usuario.statics.asociarVenta = function(id, idVenta) {
+    const db = this;
+
+    console.log(idVenta);
+
+    return new Promise((resolve, reject) => {
+        db.findOneAndUpdate({
+            _id: id
+        }, {
+            $push: {
+                ventas: mongoose.Types.ObjectId(idVenta)
             }
         }, {
             new: true
