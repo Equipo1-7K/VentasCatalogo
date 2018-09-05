@@ -155,9 +155,16 @@ Venta.statics.obtenerPorId = function(id) {
 Venta.statics.obtenerPorUsuario = function(id) {
     return new Promise((resolve, reject) => {
         Usuario_Model.findOne({_id: id})
-            .select({_id: false, productos: true})
-            .populate("ventas")
-            .then((productos) => { resolve(productos.productos); })
+            .select({_id: false, ventas: true})
+            .populate({
+                path: "ventas",
+                populate: {
+                    path: "cliente productos.producto"
+                }
+            })
+            .then((ventas) => {
+                resolve(ventas.ventas); 
+            })
             .catch((err) => { reject(err); });
     });
 };
