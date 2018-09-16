@@ -1,6 +1,7 @@
 const HttpReponse = require("../system/HttpResponse");
 const DataValidator = require("../system/Validator");
 const Venta_Model = require("../models/Venta_Model");
+const Abono_Schema = require("../schemas/Abono_Schema")
 
 const Venta_Controller = (function() {
     function Venta_Controller() {}
@@ -23,7 +24,7 @@ const Venta_Controller = (function() {
 
         Venta_Model.obtenerPorUsuario(req.user._id)
             .then((clientes) => {
-                response.success(clientes); 
+                response.success(clientes);
             })
             .catch((err) => {
                 response.error(err);

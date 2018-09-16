@@ -13,6 +13,7 @@ module.exports = {
         "./system/MetaFields.js",
         "./system/TokenHelper.js",
         "./routes/*.js",
+        "./schemas/*.js",
         "./models/*.js"
     ]
 };

@@ -52,7 +52,7 @@ router.get("/", Sesion.verificarSesion, Cliente_Controller.obtenerPorUsuario);
  *         description: ID del cliente a buscar
  *         in: path
  *         required: true
- *         type: string
+ *         type: number
  *     responses:
  *       200:
  *         description: El cliente buscado
