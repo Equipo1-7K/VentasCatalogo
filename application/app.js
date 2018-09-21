@@ -12,18 +12,17 @@ const routes = require("./routes/index");
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
-// Montamos el sitio para iniciar sesión aislado del middleware de token de sesión
-
-
 // Montamos las rutas de la api
 app.use("/api", routes);
 
 // Configuración de Swagger
-const swaggerSpec = swaggerJSDoc(swaggerConfig);
-app.use("/docs", swagger.serve, swagger.setup(swaggerSpec));
-app.get("/swaggerSpec", (req, res) => {
-    res.json(swaggerSpec);
-});
+if (process.env["PROD"] != 1) { // Sólo en desarrollo
+    const swaggerSpec = swaggerJSDoc(swaggerConfig);
+    app.use("/docs", swagger.serve, swagger.setup(swaggerSpec));
+    app.get("/swaggerSpec", (req, res) => {
+        res.json(swaggerSpec);
+    });
+}
 
 // Manejamos el 404
 app.use((req, res) => {
