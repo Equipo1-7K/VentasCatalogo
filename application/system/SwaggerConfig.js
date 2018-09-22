@@ -1,4 +1,4 @@
-const config = require("../../appConfig").swagger;
+const config = __appconfig.swagger;
 
 module.exports = {
     definition: {
@@ -10,9 +10,10 @@ module.exports = {
         basePath: config.basePath,
     },
     apis: [
-        "./application/system/MetaFields.js",
+        "./application/system/HttpResponse.js",
         "./application/system/TokenHelper.js",
         "./application/routes/*.js",
-        "./application/models/*.js"
+        "./application/models/*.js",
+        "./application/controllers/*.js"
     ]
 };

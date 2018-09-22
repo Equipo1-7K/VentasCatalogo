@@ -1,85 +1,47 @@
-/**
- * @swagger
- * definitions:
- *   InicioSesion:
- *     type: object
- *     required:
- *      - correo
- *      - contrasena
- *     properties:
- *       correo:
- *         type: string
- *       contrasena:
- *         type: string
- */
-const mongoose = require("mongoose");
-const TokenHelper = require("../system/TokenHelper");
+const Mysql = require("promise-mysql");
+const config = require("../../appConfig").database;
 
-const Sesion = new mongoose.Schema({
-    usuario: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Usuarios",
-        required: true
-    },
-    token: {
-        type: String,
-        required: true
-    },
-    fecha: {
-        type: Date,
-        default: Date()
-    },
-    vigente: {
-        type: Boolean,
-        default: true
+// Declaración de la clase
+module.exports = (function() {    
+
+    function Sesion_Model() { }
+
+    Sesion_Model.prototype.iniciarSesion = (correo, contrasena) => {
+        // Obtenemos el usuario
+        return new Promise((resolve, reject) => {
+            Mysql.createConnection(config)
+            .then((mysqlConn) => {
+                mysqlConn.query("SELECT sal, contrasena FROM usuarios WHERE correo = ?", [
+                    correo
+                ]);
+            }).then(results => {
+                // Control de errores
+                if (results.length == 0) throw { error: "Usuario y/o contraseña incorrecto(s)" }
+
+                const contrasenaSalada = results[0].sal + contrasena;
+                return mysqlConn.query("SELECT * FROM usuarios WHERE correo = ? AND contrasena = ?" [
+                    correo,
+                    contrasenaSalada
+                ]);
+            }).then(usuario => {
+                // Control de errores
+                if (usuario.length == 0) throw { error: "Usuario y/o contraseña incorrecto(s)" }
+                
+                resolve(usuario[0]);
+            }).catch(err => {
+                reject(err);
+            })
+        })
     }
-}, {versionKey: false});
 
-Sesion.statics.iniciarSesion = function(usuario) {
-    const db = this;
+    Sesion_Model.prototype.verificarSesion = () => {
 
-    return new Promise((resolve, reject) => {
-        const token = TokenHelper.createToken(usuario);
-        db.create({
-            usuario: usuario._id,
-            token: token
-        }).then(() => {
-            resolve({
-                usuario: usuario,
-                token: token
-            });
-        }).catch((err) => {
-            reject(err);
-        });
-    });
-};
+    }
 
-Sesion.statics.verificarSesion = function(sesion) {
-    return new Promise((resolve, reject) => {
-        TokenHelper.verifyToken(sesion)
-            .then((data) => resolve(data))
-            .catch((err) => reject(err));
-    });
-};
+    Sesion_Model.prototype.cerrarSesion = () => {
 
-Sesion.statics.cerrarSesion = function(token) {
-    const db = this;
+    }
 
-    return new Promise((resolve, reject) => {
-        db.findOneAndUpdate({
-            token: token
-        }, {
-            vigente: false
-        }, {
-            new: true
-        }).then((sesion) => {
-            resolve({
-                sesion: sesion
-            });
-        }).catch((err) => {
-            reject(err);
-        });
-    });
-};
+    return Sesion_Model;
 
-module.exports = mongoose.model("Sesiones", Sesion);
+})();

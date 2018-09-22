@@ -11,7 +11,7 @@ module.exports = {
     database: {
         host: "database",
         user: "vcRoot",
-        pass: "123456",
-        schema: "ventasCatalogo"
+        password: "123456",
+        database: "ventasCatalogo"
     }
 };

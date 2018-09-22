@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const logCatcher = require("./system/LogCatcher");
 
 const swaggerConfig = require("./system/SwaggerConfig");
 const swaggerJSDoc = require("swagger-jsdoc");
@@ -13,7 +14,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 
 // Montamos las rutas de la api
-app.use("/api", routes);
+app.use("/api", logCatcher, routes);
 
 // Configuración de Swagger
 if (process.env["PROD"] != 1) { // Sólo en desarrollo

@@ -1,12 +1,25 @@
 const router = require("express").Router();
+const HttpResponse = require("../system/HttpResponse");
 
-const Usuarios_Router = require("./Usuarios_Router");
-const Sesiones_Router = require("./Sesiones_Router");
-const Producto_Router = require("./Producto_Router");
-const Cliente_Router = require("./Cliente_Router");
+const Sesion = require("./Sesion_Router");
 
-router.use("/usuarios", Usuarios_Router);
-router.use("/sesion", Sesiones_Router);
-router.use("/productos", Producto_Router);
-router.use("/clientes", Cliente_Router);
+// Validamos content-type
+router.use((req, res, next) => {
+    console.log(req.headers["content-type"] !== "application/json");
+    if (req.method !== "GET" && 
+        req.headers["content-type"] !== "application/json" && 
+        req.headers["content-type"] !== "application/x-www-form-urlencoded"
+    ) {
+        const response = new HttpResponse(res);
+        response.unsupportedMediaType({
+            message: "Sólo se aceptan formatos 'application/json' ó 'x-www-form-urlencoded'"
+        });
+    } else {
+        next();
+    }
+})
+
+// Montamos los controladores
+router.use("/sesion", Sesion);
+
 module.exports = router;
