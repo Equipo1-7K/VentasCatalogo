@@ -1,162 +1,63 @@
 /**
  * @swagger
- * definitions:
- *   Meta_ok:
+ * responses:
+ *   badRequest:
+ *     description: Error en la validación de datos
+ *     type: array
+ *     items:
+ *       type: object
+ *       properties:
+ *         errorType:
+ *           type: integer
+ *           enum: [1, 2, 3, 4, 5, 6]
+ *         trace:
+ *           type: array
+ *           items:
+ *             type: object
+ *             properties:
+ *               stepName:
+ *                 type: string
+ *   unauthorized:
+ *     description: Datos de sesión incorrectos
  *     type: object
  *     properties:
- *       status:
- *         type: boolean
- *         default: true
- *       responseCode:
- *         type: integer
- *         default: 200
  *       message:
  *         type: string
- *         default: OK
- *   Meta_created:
+ * 
+ *   notFound:
+ *     description: Recurso no encontrado
  *     type: object
  *     properties:
- *       status:
- *         type: boolean
- *         default: true
- *       responseCode:
- *         type: integer
- *         default: 201
  *       message:
  *         type: string
- *         default: Created
- *   Meta_noContent:
+ * 
+ *   internalServerError:
+ *     description: Error interno en el servidor
  *     type: object
  *     properties:
- *       status:
- *         type: boolean
- *         default: true
- *       responseCode:
- *         type: integer
- *         default: 204
  *       message:
  *         type: string
- *         default: No Content
- *   Meta_notModified:
+ * 
+ *   methodNotAllowed:
+ *     description: Método no permitido para la ruta
  *     type: object
  *     properties:
- *       status:
- *         type: boolean
- *         default: false
- *       responseCode:
- *         type: integer
- *         default: 304
  *       message:
  *         type: string
- *         default: Not Modified
- *   Meta_badRequest:
+ * 
+ *   unsupportedMediaType:
+ *     description: El contenido enviado no está en json o urlencoded
  *     type: object
  *     properties:
- *       status:
- *         type: boolean
- *         default: false
- *       responseCode:
- *         type: integer
- *         default: 400
  *       message:
  *         type: string
- *         default: Bad Request
- *   Meta_unauthorized:
+ * 
+ *   default:
+ *     description: Error inesperado
  *     type: object
  *     properties:
- *       status:
- *         type: boolean
- *         default: false
- *       responseCode:
- *         type: integer
- *         default: 401
  *       message:
  *         type: string
- *         default: Unauthorized
- *   Meta_forbidden:
- *     type: object
- *     properties:
- *       status:
- *         type: boolean
- *         default: false
- *       responseCode:
- *         type: integer
- *         default: 403
- *       message:
- *         type: string
- *         default: Forbidden
- *   Meta_notFound:
- *     type: object
- *     properties:
- *       status:
- *         type: boolean
- *         default: false
- *       responseCode:
- *         type: integer
- *         default: 404
- *       message:
- *         type: string
- *         default: Not Found
- *   Meta_methodNotAllowed:
- *     type: object
- *     properties:
- *       status:
- *         type: boolean
- *         default: false
- *       responseCode:
- *         type: integer
- *         default: 405
- *       message:
- *         type: string
- *         default: OK
- *   Meta_gone:
- *     type: object
- *     properties:
- *       status:
- *         type: boolean
- *         default: false
- *       responseCode:
- *         type: integer
- *         default: 410
- *       message:
- *         type: string
- *         default: Gone
- *   Meta_unsupportedMediaType:
- *     type: false
- *     properties:
- *       status:
- *         type: boolean
- *         default: false
- *       responseCode:
- *         type: integer
- *         default: 415
- *       message:
- *         type: string
- *         default: Unsupported Media Type
- *   Meta_tooManyRequests:
- *     type: object
- *     properties:
- *       status:
- *         type: boolean
- *         default: false
- *       responseCode:
- *         type: integer
- *         default: 429
- *       message:
- *         type: string
- *         default: Too Many Requests
- *   Meta_internalServerError:
- *     type: object
- *     properties:
- *       status:
- *         type: boolean
- *         default: false
- *       responseCode:
- *         type: integer
- *         default: 500
- *       message:
- *         type: string
- *         default: Internal Server Error
  */
 
 // Declaración de la clase
@@ -199,13 +100,17 @@ module.exports = (function() {
 
             // Creamos el método de respuesta con el nombre generado en camelCase
             HttpResponse.prototype[methodName] = (data) => {
-                res.status(staticCode).json({
-                    status: staticCode.toString()[0] == "2",
-                    responseCode: staticCode,
-                    message: responses[staticCode],
-                    data: data
-                })
+                res.status(staticCode).json(data);
             }
+        }
+    }
+
+    HttpResponse.prototype.ErrorGenerico = function() {
+        const malioSal = Math.floor(Math.random() * (10));
+        if (malioSal == 0) {
+            this.internalServerError({message: "Algo malió sal :C"});
+        } else {
+            this.internalServerError({message: "Algo salió mal :C"});
         }
     }
 

@@ -17,9 +17,12 @@ app.use(bodyParser.urlencoded({extended: true}));
 app.use("/api", logCatcher, routes);
 
 // Configuración de Swagger
+
+// Inicializamos swaggerSpec
+global.swaggerSpec = swaggerJSDoc(swaggerConfig);
+
 if (process.env["PROD"] != 1) { // Sólo en desarrollo
-    const swaggerSpec = swaggerJSDoc(swaggerConfig);
-    app.use("/docs", swagger.serve, swagger.setup(swaggerSpec));
+    app.use("/docs", swagger.serve, swagger.setup(global.swaggerSpec));
     app.get("/swaggerSpec", (req, res) => {
         res.json(swaggerSpec);
     });
@@ -28,7 +31,9 @@ if (process.env["PROD"] != 1) { // Sólo en desarrollo
 // Manejamos el 404
 app.use((req, res) => {
     const HttpResponse = new (require("./system/HttpResponse"))(res);
-    HttpResponse.notFound(req.url);
+    HttpResponse.notFound({
+        message: `El recurso ${req.method} ${req.url} no se encuentra`
+    });
 });
 
 module.exports = app;

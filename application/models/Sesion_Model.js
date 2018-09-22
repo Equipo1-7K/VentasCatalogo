@@ -1,33 +1,25 @@
 const Mysql = require("promise-mysql");
 const config = require("../../appConfig").database;
 
+const tokenHelper = require("../system/TokenHelper");
+
 // Declaración de la clase
 module.exports = (function() {    
 
     function Sesion_Model() { }
 
-    Sesion_Model.prototype.iniciarSesion = (correo, contrasena) => {
+    Sesion_Model.prototype.iniciarSesion = (usuario) => {
         // Obtenemos el usuario
         return new Promise((resolve, reject) => {
-            Mysql.createConnection(config)
-            .then((mysqlConn) => {
-                mysqlConn.query("SELECT sal, contrasena FROM usuarios WHERE correo = ?", [
-                    correo
+            const token = tokenHelper.createToken(usuario);
+            Mysql.createConnection(config).then((mysqlConn) => {
+                return mysqlConn.query("INSERT INTO sesiones VALUES (?, ?, DEFAULT, NULL)", [
+                    token,
+                    usuario.id
                 ]);
-            }).then(results => {
-                // Control de errores
-                if (results.length == 0) throw { error: "Usuario y/o contraseña incorrecto(s)" }
-
-                const contrasenaSalada = results[0].sal + contrasena;
-                return mysqlConn.query("SELECT * FROM usuarios WHERE correo = ? AND contrasena = ?" [
-                    correo,
-                    contrasenaSalada
-                ]);
-            }).then(usuario => {
-                // Control de errores
-                if (usuario.length == 0) throw { error: "Usuario y/o contraseña incorrecto(s)" }
-                
-                resolve(usuario[0]);
+            }).then(result => {
+                usuario.token = token;
+                resolve(usuario);
             }).catch(err => {
                 reject(err);
             })

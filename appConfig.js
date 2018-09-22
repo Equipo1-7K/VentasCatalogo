@@ -4,7 +4,7 @@ module.exports = {
         port: 3000
     },
     swagger: {
-        host: "http://localhost",
+        host: "localhost",
         port: 3000,
         basePath: "/api"
     },
