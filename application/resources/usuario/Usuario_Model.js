@@ -1,11 +1,13 @@
 const Mysql = require("promise-mysql");
-const config = require("../../appConfig").database;
+const config = require("../../../appConfig").database;
+
+console.log(__dirname);
 
 // Declaración de la clase
 module.exports = (function() {
     
     function Usuario_Model() { }
-    
+
     Usuario_Model.prototype.obtenerContrasenaPorCoreo = (correo) => {
         return new Promise((resolve, reject) => {
             Mysql.createConnection(config).then(mysqlConn => {
@@ -33,6 +35,16 @@ module.exports = (function() {
                 reject(err);
             })
         });
+    }
+
+    Usuario_Model.prototype.crear = (usuarioNuevo) => {
+        return new Promise((resolve, reject) => {
+            Mysql.createConnection(config).then(mysqlConn => {
+                return mysqlConn.query("INSERT INTO usuarios VALUES ()")
+            }).catch(err => {
+                reject(err);
+            });
+        })
     }
 
     return Usuario_Model;

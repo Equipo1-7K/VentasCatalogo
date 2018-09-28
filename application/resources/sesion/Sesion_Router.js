@@ -6,8 +6,8 @@
  */
 
 const router = require("express").Router();
-const Sesion = new (require("../controllers/Sesion_Controller"))();
-const HttpResponse = require("../system/HttpResponse");
+const Sesion = new (require("./Sesion_Controller"))();
+const HttpResponse = require("../../system/HttpResponse");
 
 /**
  * @swagger

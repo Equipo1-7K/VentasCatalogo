@@ -1,13 +1,13 @@
-const HttpResponse = require("../system/HttpResponse");
-const swaggerConfig = require("../system/SwaggerConfig");
+const HttpResponse = require("../../system/HttpResponse");
+const swaggerConfig = require("../../system/SwaggerConfig");
 const swaggerJSDoc = require("swagger-jsdoc");
 const SwaggerValidator = require("swagger-object-validator");
 const SHA256 = require("js-sha256");
 
-const Sesion = require("../models/Sesion_Model");
-const Usuario = require("../models/Usuario_Model");
-const ControllerException = require("../system/Exceptions").ControllerException;
-const ValidationException = require("../system/Exceptions").ValidationException;
+const Sesion = require("./Sesion_Model");
+const Usuario = require("../usuario/Usuario_Model");
+const ControllerException = require("../../system/Exceptions").ControllerException;
+const ValidationException = require("../../system/Exceptions").ValidationException;
 
 // Declaración de la clase
 module.exports = (function() {

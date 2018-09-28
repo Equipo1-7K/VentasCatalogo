@@ -1,4 +1,5 @@
 const express = require("express");
+const cors = require("cors");
 const bodyParser = require("body-parser");
 const logCatcher = require("./system/LogCatcher");
 
@@ -7,7 +8,9 @@ const swaggerJSDoc = require("swagger-jsdoc");
 const swagger = require("swagger-ui-express");
 
 const app = express();
-const routes = require("./routes/index");
+const routes = require("./resources/routes");
+
+app.use(cors());
 
 // Inicializamos body-parser
 app.use(bodyParser.json());
