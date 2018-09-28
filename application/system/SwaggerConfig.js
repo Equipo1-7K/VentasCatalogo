@@ -12,8 +12,6 @@ module.exports = {
     apis: [
         "./application/system/HttpResponse.js",
         "./application/system/TokenHelper.js",
-        "./application/routes/*.js",
-        "./application/models/*.js",
-        "./application/controllers/*.js"
+        "./application/resources/**/*.js"
     ]
 };
