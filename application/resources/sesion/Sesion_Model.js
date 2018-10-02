@@ -1,5 +1,5 @@
 const Mysql = require("promise-mysql");
-const config = require("../../../appConfig").database;
+const config = __appconfig.database;
 
 const tokenHelper = require("../../system/TokenHelper");
 

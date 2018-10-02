@@ -8,8 +8,6 @@ const swaggerJSDoc = require("swagger-jsdoc");
 const swagger = require("swagger-ui-express");
 
 const app = express();
-// const routes = require("./routes/index");
-
 app.use(cors());
 
 // Inicializamos body-parser
