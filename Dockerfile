@@ -1,3 +1,4 @@
-FROM ubuntu:18.04
+FROM node
 COPY ./ /usr/src/app
-CMD sh /usr/src/app/Docker/deploy.sh
+RUN cd /usr/src/app && npm install
+CMD node ./

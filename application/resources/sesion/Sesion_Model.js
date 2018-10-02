@@ -1,7 +1,7 @@
 const Mysql = require("promise-mysql");
-const config = require("../../appConfig").database;
+const config = require("../../../appConfig").database;
 
-const tokenHelper = require("../system/TokenHelper");
+const tokenHelper = require("../../system/TokenHelper");
 
 // Declaración de la clase
 module.exports = (function() {    

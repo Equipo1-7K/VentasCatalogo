@@ -72,6 +72,7 @@ module.exports = (function() {
         403: "Forbidden",
         404: "Not Found",
         405: "Method Not Allowed",
+        409: "Conflict",
         410: "Gone",
         415: "Unsupported Media Type",
         429: "Too Many Requests",

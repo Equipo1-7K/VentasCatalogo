@@ -1,13 +1,13 @@
-const HttpResponse = require("../system/HttpResponse");
-const swaggerConfig = require("../system/SwaggerConfig");
+const HttpResponse = require("../../system/HttpResponse");
+const swaggerConfig = require("../../system/SwaggerConfig");
 const swaggerJSDoc = require("swagger-jsdoc");
 const SwaggerValidator = require("swagger-object-validator");
 const SHA256 = require("js-sha256");
 
-const Sesion = require("../models/Sesion_Model");
-const Usuario = require("../models/Usuario_Model");
-const ControllerException = require("../system/Exceptions").ControllerException;
-const ValidationException = require("../system/Exceptions").ValidationException;
+const Sesion = require("./Sesion_Model");
+const Usuario = require("../usuario/Usuario_Model");
+const ControllerException = require("../../system/Exceptions").ControllerException;
+const ValidationException = require("../../system/Exceptions").ValidationException;
 
 // Declaración de la clase
 module.exports = (function() {
@@ -53,9 +53,7 @@ module.exports = (function() {
         const sesion = new Sesion();
         const usuario = new Usuario();
         validator.validateModel(req.body, "Sesion_InicioSesion_Req").then(data => {
-            console.log(data);
             if (data.errors.length > 0) throw new ValidationException(data.errors);
-            console.log(data);
 
             // Obtenemos las contraseñas del usuario
             return usuario.obtenerContrasenaPorCoreo(req.body.correo);
@@ -77,7 +75,7 @@ module.exports = (function() {
             }
 
             // Creamos la sesión
-            return sesion.iniciarSesion(usuario);
+            return sesion.iniciarSesion(usuario[0]);
         }).then(usuario => {
             // Devolvemos el usuario con su token
             response.ok(usuario);

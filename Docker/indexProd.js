@@ -1,14 +1,13 @@
-const mongoose = require("mongoose");
+__appconfig = require("./appConfig");
+const config = __appconfig.express;
+
 const app = require("./application/app");
 const fs = require("fs");
 const https = require("https");
 const http = require("http");
 
-mongoose.Promise = global.Promise;
-const mongoConnectionString = "mongodb://127.0.0.1:27017/ventasCatalogo";
-
+global.Promise = require("bluebird").Promise;
 console.log("Iniciando servidor en modo producción");
-
 
 // Los certificados
 const privateKey = fs.readFileSync("./ssl/privatekey.pem");
@@ -17,6 +16,8 @@ const options = {
     key: privateKey,
     cert: certificate
 };
+
+// Los puertos
 const httpsPort = 443;
 const httpPort = 80;
 
@@ -37,3 +38,8 @@ mongoose.connect(mongoConnectionString, {useNewUrlParser: true})
 
     })
     .catch((err) => { console.log(err); });
+
+console.log("Iniciando servidor en modo desarrollo");
+app.listen(config.port, () => {
+    console.log("Server listening on port " + config.port);
+});

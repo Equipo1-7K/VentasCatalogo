@@ -1,8 +1,4 @@
 module.exports = {
-    express: {
-        url: "http://localhost",
-        port: 3000
-    },
     swagger: {
         host: "localhost",
         port: 3000,

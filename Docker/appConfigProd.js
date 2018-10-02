@@ -1,8 +1,4 @@
 module.exports = {
-    express: {
-        url: "https://ventascatalogo.xyz",
-        port: 3000
-    },
     swagger: {
         host: "",
         port: 0,
@@ -10,8 +6,8 @@ module.exports = {
     },
     database: {
         host: "database",
-        user: "vcRoot",
-        password: "123456",
+        user: "root",
+        password: "contrasena",
         database: "ventasCatalogo"
     }
 };

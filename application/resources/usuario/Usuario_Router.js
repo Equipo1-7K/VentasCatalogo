@@ -1,0 +1,45 @@
+/**
+ * @swagger
+ * tags:
+ *   name: Usuarios
+ *   description: Métodos para usuarios
+ */
+
+const router = require("express").Router();
+const Usuario = new (require("./Usuario_Controller"))();
+
+/**
+ * @swagger
+ * /usuario:
+ *   post:
+ *     tags:
+ *      - Usuarios
+ *     summary: Crear Usuario
+ *     description: Crea un usuario con los datos ingresados
+ *     produces:
+ *      - application/json
+ *     consumes:
+ *      - application/json
+ *      - application/x-www-form-urlencoded
+ *     parameters:
+ *       - name: body
+ *         description: Datos del inicio de la sesión
+ *         in: body
+ *         required: true
+ *         type: string
+ *         schema:
+ *           $ref: '#/definitions/Usuario_Crear_Req'
+ *     responses:
+ *       200:
+ *         description: Los datos del usuario y el token de sesión
+ *         type: object
+ *         schema:
+ *           $ref: '#/definitions/Sesion_InicioSesion_Res'
+ *       400:
+ *         $ref: "#/responses/badRequest"
+ *       default:
+ *         $ref: "#/responses/default"
+ */
+router.post("/", Usuario.crear);
+
+module.exports = router;
