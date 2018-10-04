@@ -1,7 +1,7 @@
 const HttpResponse = require("../../system/HttpResponse")
 const SwaggerValidator = require("swagger-object-validator"); // Validador a partir de swagger
 
-const Productos_Model = require("./Productos_Model");
+const Clientes_Model = require("./Clientes_Model");
 const ControllerException = require("../../system/Exceptions").ControllerException;
 const ValidationException = require("../../system/Exceptions").ValidationException;
 
@@ -9,43 +9,43 @@ const ValidationException = require("../../system/Exceptions").ValidationExcepti
 module.exports = (function() {
     const validator = new SwaggerValidator.Handler(global.swaggerSpec); // Se crea validador a partir de swaggerSpec
     
-    function Productos_Controller() { }
+    function Clientes_Controller() { }
     
     /**
      * @swagger
      * definitions:
      * 
-     *   Producto_Agregar_Req:
+     *   Cliente_Agregar_Req:
      *     type: object
      *     properties:
      *       nombre:
      *         type: string
-     *       descripcion:
+     *       apPaterno:
      *         type: string
-     *       precio:
-     *         type: number
+     *       apMaterno:
+     *         type: string
      *     required:
      *      - nombre
-     *      - descripcion
-     *      - precio
+     *      - apPaterno
+     *      - apMaterno
      */
-    Productos_Controller.prototype.agregar = (req, res) => {
+    Clientes_Controller.prototype.agregar = (req, res) => {
         const response = new HttpResponse(res);
-        const Producto = new Productos_Model();
+        const Cliente = new Clientes_Model();
 
-        validator.validateModel(req.body, "Producto_Agregar_Req").then(data => {
+        validator.validateModel(req.body, "Cliente_Agregar_Req").then(data => {
             // Si hay errores en la validación, se envía la exepción
             if (data.errors.length > 0) throw new ValidationException(  data.errors);
 
-            return Producto.agregar(req.idUsuario, req.body);
+            return Cliente.agregar(req.idUsuario, req.body);
         }).then(result => {
-            return Producto.obtenerPorId(req.idUsuario, result.insertId);
-        }).then(productoAgregado => {
+            return Cliente.obtenerPorId(req.idUsuario, result.insertId);
+        }).then(clienteAgregado => {
             // Ponemos el nuevo recurso
-            res.header("Location", "/producto/" + productoAgregado.id);
+            res.header("Location", "/producto/" + clienteAgregado.id);
 
             // Enviamos el nuevo objeto
-            response.created(productoAgregado);
+            response.created(clienteAgregado);
         }).catch(ControllerException, ValidationException, err => { // Errores de controlador
 
             // Se responde con lo definido en el objeto de la exepción
@@ -62,15 +62,15 @@ module.exports = (function() {
     }
 
     // Sin documentación de swagger
-    Productos_Controller.prototype.obtenerPorId = (req, res) => {
+    Clientes_Controller.prototype.obtenerPorId = (req, res) => {
         const response = new HttpResponse(res);
-        const Producto = new Productos_Model();
+        const Cliente = new Clientes_Model();
 
-        Producto.obtenerPorId(req.idUsuario, req.params.id).then(producto => {
-            if (!producto) {
-                throw new ControllerException("notFound", {message: "El producto no existe"})
+        Cliente.obtenerPorId(req.idUsuario, req.params.id).then(cliente => {
+            if (!cliente) {
+                throw new ControllerException("notFound", {message: "El cliente no existe"})
             } else {
-                response.ok(producto);
+                response.ok(cliente);
             }
         }).catch(ControllerException, ValidationException, err => { // Errores de controlador
 
@@ -87,25 +87,26 @@ module.exports = (function() {
         });
     }
 
+
     /**
      * @swagger
      * definitions:
      * 
-     *   Productos_ObtenerPaginado_Res:
+     *   Cliente_ObtenerPaginado_Res:
      *     type: object
      *     properties:
      *       items:
      *         type: array
      *         items:
-     *           $ref: '#/definitions/Producto'
+     *           $ref: '#/definitions/Cliente'
      *       total:
      *         type: integer
      */
-    Productos_Controller.prototype.obtenerPaginado = (req, res) => {
+    Clientes_Controller.prototype.obtenerPaginado = (req, res) => {
         const response = new HttpResponse(res);
-        const Producto = new Productos_Model();
+        const Cliente = new Clientes_Model();
 
-        let productosObtenidos = { };
+        let clientesObtenidos = { };
 
         try {
             req.query.page = parseInt(req.query.page);
@@ -116,13 +117,13 @@ module.exports = (function() {
             // Si hay errores en la validación, se envía la exepción
             if (data.errors.length > 0) throw new ValidationException(data.errors);
 
-            return Producto.obtenerPaginado(req.idUsuario, req.query.page, req.query.perPage);
-        }).then(productos => {
-            productosObtenidos.items = productos;
-            return Producto.obtenerTotal(req.idUsuario);
+            return Cliente.obtenerPaginado(req.idUsuario, req.query.page, req.query.perPage);
+        }).then(clientes => {
+            clientesObtenidos.items = clientes;
+            return Cliente.obtenerTotal(req.idUsuario);
         }).then(total => {
-            productosObtenidos.total = total || 0;
-            response.ok(productosObtenidos);
+            clientesObtenidos.total = total || 0;
+            response.ok(clientesObtenidos);
         }).catch(ControllerException, ValidationException, err => { // Errores de controlador
 
             // Se responde con lo definido en el objeto de la exepción
@@ -142,36 +143,36 @@ module.exports = (function() {
      * @swagger
      * definitions:
      * 
-     *   Producto_Modificar_Req:
+     *   Cliente_Modificar_Req:
      *     type: object
      *     properties:
      *       nombre:
      *         type: string
-     *       descripcion:
+     *       apPaterno:
      *         type: string
-     *       precio:
-     *         type: number
+     *       apMaterno:
+     *         type: string
      *     required:
      *      - nombre
-     *      - descripcion
-     *      - precio
+     *      - apPaterno
+     *      - apMaterno
      */
-    Productos_Controller.prototype.modificar = (req, res) => {
+    Clientes_Controller.prototype.modificar = (req, res) => {
         const response = new HttpResponse(res);
-        const Producto = new Productos_Model();
+        const Cliente = new Clientes_Model();
 
-        Producto.obtenerPorId(req.idUsuario, req.params.id).then(producto => {
-            if (!producto) {
-                throw new ControllerException("notFound", {message: "El producto no existe"})
+        Cliente.obtenerPorId(req.idUsuario, req.params.id).then(cliente => {
+            if (!cliente) {
+                throw new ControllerException("notFound", {message: "El cliente no existe"})
             }
 
-            return validator.validateModel(req.body, "Producto_Modificar_Req");
+            return validator.validateModel(req.body, "Cliente_Modificar_Req");
         }).then(data => {
 
             // Si hay errores en la validación, se envía la exepción
             if (data.errors.length > 0) throw new ValidationException(data.errors);
 
-            return Producto.modificar(req.idUsuario, req.params.id, req.body);
+            return Cliente.modificar(req.idUsuario, req.params.id, req.body);
         }).then(data => {
             response.noContent(null);
         }).catch(ControllerException, ValidationException, err => { // Errores de controlador
@@ -189,16 +190,16 @@ module.exports = (function() {
         });
     }
 
-    Productos_Controller.prototype.eliminar = (req, res) => {
+    Clientes_Controller.prototype.eliminar = (req, res) => {
         const response = new HttpResponse(res);
-        const Producto = new Productos_Model();
+        const Cliente = new Clientes_Model();
 
-        Producto.obtenerPorId(req.idUsuario, req.params.id).then(producto => {
+        Cliente.obtenerPorId(req.idUsuario, req.params.id).then(producto => {
             if (!producto) {
-                throw new ControllerException("notFound", {message: "El producto no existe"})
+                throw new ControllerException("notFound", {message: "El cliente no existe"})
             }
 
-            return Producto.eliminar(req.idUsuario, req.params.id);
+            return Cliente.eliminar(req.idUsuario, req.params.id);
         }).then(data => {
             response.noContent(null);
         }).catch(ControllerException, ValidationException, err => { // Errores de controlador
@@ -216,5 +217,5 @@ module.exports = (function() {
         });
     }
 
-    return Productos_Controller;
+    return Clientes_Controller;
 })();
