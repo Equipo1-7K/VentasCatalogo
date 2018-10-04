@@ -74,7 +74,7 @@ router.get("/", Clientes.obtenerPaginado);
  *           minimum: 1
  *     responses:
  *       200:
- *         description: El producto seleccionado
+ *         description: El cliente seleccionado
  *         type: object
  *         schema:
  *           $ref: '#/definitions/Cliente'
@@ -154,6 +154,42 @@ router.post("/", Clientes.agregar);
  *         $ref: "#/responses/default"
  */
 router.put("/:id", Clientes.modificar);
+
+/**
+ * @swagger
+ * /clientes/{id}/domicilio:
+ *   put:
+ *     security:
+ *       - JWT: []
+ *     tags:
+ *      - Clientes
+ *     summary: Modificar Domicilio de un Cliente
+ *     description: Sustituye el domicilio de un cliente señalado por su ID por otro enviado desde el body
+ *     produces:
+ *      - application/json
+ *     consumes:
+ *      - application/json
+ *      - application/x-www-form-urlencoded
+ *     parameters:
+ *       - name: id
+ *         description: ID del cliente
+ *         in: path
+ *         required: true
+ *         type: number
+ *       - name: body
+ *         description: Datos del domicilio nuevo
+ *         in: body
+ *         required: true
+ *         type: string
+ *         schema:
+ *           $ref: '#/definitions/Cliente_ModificarDomicilio_Req'
+ *     responses:
+ *       204:
+ *         description: Nada xd
+ *       default:
+ *         $ref: "#/responses/default"
+ */
+router.put("/:id/domicilio", Clientes.modificarDomicilio);
 
 /**
  * @swagger

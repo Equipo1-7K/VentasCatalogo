@@ -24,6 +24,34 @@ module.exports = (function() {
      *         type: string
      *       apMaterno:
      *         type: string
+     *       domicilio:
+     *         type: object
+     *         properties:
+     *           estado:
+     *             type: string
+     *           municipio:
+     *             type: string
+     *           cp:
+     *             type: string
+     *           colonia:
+     *             type: string
+     *           calle:
+     *             type: string
+     *           noExterno:
+     *             type: string
+     *           noInterno:
+     *             type: string
+     *           referencia:
+     *             type: string
+     *         required:
+     *          - estado 
+     *          - municipio 
+     *          - cp 
+     *          - colonia 
+     *          - calle 
+     *          - noExterno 
+     *          - noInterno 
+     *          - referencia 
      *     required:
      *      - nombre
      *      - apPaterno
@@ -33,6 +61,7 @@ module.exports = (function() {
         const response = new HttpResponse(res);
         const Cliente = new Clientes_Model();
 
+        let cliente;
         validator.validateModel(req.body, "Cliente_Agregar_Req").then(data => {
             // Si hay errores en la validación, se envía la exepción
             if (data.errors.length > 0) throw new ValidationException(  data.errors);
@@ -41,11 +70,16 @@ module.exports = (function() {
         }).then(result => {
             return Cliente.obtenerPorId(req.idUsuario, result.insertId);
         }).then(clienteAgregado => {
+            cliente = clienteAgregado;
+
+            return Cliente.obtenerDomicilioPorId(req.idUsuario, cliente.id);
+        }).then(domicilio => {
+            cliente.domicilio = domicilio;
             // Ponemos el nuevo recurso
-            res.header("Location", "/producto/" + clienteAgregado.id);
+            res.header("Location", "/cliente/" + cliente.id);
 
             // Enviamos el nuevo objeto
-            response.created(clienteAgregado);
+            response.created(cliente);
         }).catch(ControllerException, ValidationException, err => { // Errores de controlador
 
             // Se responde con lo definido en el objeto de la exepción
@@ -65,13 +99,17 @@ module.exports = (function() {
     Clientes_Controller.prototype.obtenerPorId = (req, res) => {
         const response = new HttpResponse(res);
         const Cliente = new Clientes_Model();
-
+        let clienteRecibido;
         Cliente.obtenerPorId(req.idUsuario, req.params.id).then(cliente => {
             if (!cliente) {
                 throw new ControllerException("notFound", {message: "El cliente no existe"})
-            } else {
-                response.ok(cliente);
             }
+
+            clienteRecibido = cliente;
+            return Cliente.obtenerDomicilioPorId(req.idUsuario, req.params.id);
+        }).then(domicilio => {
+            clienteRecibido.domicilio = domicilio;
+            response.ok(clienteRecibido);
         }).catch(ControllerException, ValidationException, err => { // Errores de controlador
 
             // Se responde con lo definido en el objeto de la exepción
@@ -173,6 +211,72 @@ module.exports = (function() {
             if (data.errors.length > 0) throw new ValidationException(data.errors);
 
             return Cliente.modificar(req.idUsuario, req.params.id, req.body);
+        }).then(data => {
+            response.noContent(null);
+        }).catch(ControllerException, ValidationException, err => { // Errores de controlador
+
+            // Se responde con lo definido en el objeto de la exepción
+            err.response(response);
+
+        }).catch(err => { // Error desconocido
+
+            // Se imprime en consola el error
+            console.error(err)
+
+            // Se muestra al usuario un error genérico
+            response.ErrorGenerico();
+        });
+    }
+
+    /**
+     * @swagger
+     * definitions:
+     * 
+     *   Cliente_ModificarDomicilio_Req:
+     *     type: object
+     *     properties:
+     *       estado:
+     *         type: string
+     *       municipio:
+     *         type: string
+     *       cp:
+     *         type: string
+     *       colonia:
+     *         type: string
+     *       calle:
+     *         type: string
+     *       noExterno:
+     *         type: string
+     *       noInterno:
+     *         type: string
+     *       referencia:
+     *         type: string
+     *     required:
+     *      - estado
+     *      - municipio
+     *      - cp
+     *      - colonia
+     *      - calle
+     *      - noExterno
+     *      - noInterno
+     *      - referencia
+     */
+    Clientes_Controller.prototype.modificarDomicilio = (req, res) => {
+        const response = new HttpResponse(res);
+        const Cliente = new Clientes_Model();
+
+        Cliente.obtenerPorId(req.idUsuario, req.params.id).then(cliente => {
+            if (!cliente) {
+                throw new ControllerException("notFound", {message: "El cliente no existe"})
+            }
+
+            return validator.validateModel(req.body, "Cliente_ModificarDomicilio_Req");
+        }).then(data => {
+
+            // Si hay errores en la validación, se envía la exepción
+            if (data.errors.length > 0) throw new ValidationException(data.errors);
+
+            return Cliente.modificarDomicilio(req.params.id, req.body);
         }).then(data => {
             response.noContent(null);
         }).catch(ControllerException, ValidationException, err => { // Errores de controlador

@@ -14,6 +14,26 @@
  *         type: string
  *       apMaterno:
  *         type: string
+ *       domicilio:
+ *         type: object
+ *         properties:
+ *           estado:
+ *             type: string
+ *           municipio:
+ *             type: string
+ *           cp:
+ *             type: string
+ *           colonia:
+ *             type: string
+ *           calle:
+ *             type: string
+ *           noExterno:
+ *             type: string
+ *           noInterno:
+ *             type: string
+ *           referencia:
+ *             type: string
+ *           
  */
 
 const Mysql = require("promise-mysql");
@@ -26,6 +46,8 @@ module.exports = (function() {
     
     Clientes.prototype.agregar = (idUsuario, cliente) => {
         return new Promise((resolve, reject) => {
+            let metaResult;
+
             Mysql.createConnection(config).then(mysqlConn => {
                 return mysqlConn.query("INSERT INTO clientes VALUES (NULL, ?, ?, ?, ?, DEFAULT, DEFAULT, NULL)", [
                     idUsuario,
@@ -34,7 +56,22 @@ module.exports = (function() {
                     cliente.apMaterno
                 ]);
             }).then(result => {
-                resolve(result);
+                metaResult = result;
+                return Mysql.createConnection(config);
+            }).then(mysqlConn => {
+                return mysqlConn.query("INSERT INTO cliente_domicilio VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, DEFAULT, DEFAULT, NULL )", [
+                    metaResult.insertId,
+                    cliente.domicilio.estado,
+                    cliente.domicilio.municipio,
+                    cliente.domicilio.cp,
+                    cliente.domicilio.colonia,
+                    cliente.domicilio.calle,
+                    cliente.domicilio.noExterno,
+                    cliente.domicilio.noInterno,
+                    cliente.domicilio.referencia
+                ])
+            }).then(result => {
+                resolve(metaResult)
             }).catch(err => {
                 reject(err);
             });
@@ -45,6 +82,25 @@ module.exports = (function() {
         return new Promise((resolve, reject) => {
             Mysql.createConnection(config).then(mysqlConn => {
                 return mysqlConn.query("SELECT * FROM clientes WHERE idUsuario = ? AND id = ? AND deletedAt IS NULL", [
+                    idUsuario,
+                    idCliente
+                ]);
+            }).then(result => {
+                if (result.length > 0) {
+                    resolve(result[0]);
+                } else {
+                    resolve(null);
+                }
+            }).catch(err => {
+                reject(err);
+            });
+        })
+    }
+    
+    Clientes.prototype.obtenerDomicilioPorId = (idUsuario, idCliente) => {
+        return new Promise((resolve, reject) => {
+            Mysql.createConnection(config).then(mysqlConn => {
+                return mysqlConn.query("SELECT cd.* FROM cliente_domicilio AS cd INNER JOIN clientes AS c on c.id = cd.idCliente WHERE c.idUsuario = ? AND cd.idCliente = ? AND c.deletedAt IS NULL", [
                     idUsuario,
                     idCliente
                 ]);
@@ -101,6 +157,40 @@ module.exports = (function() {
                     cliente.apMaterno,
                     idCliente,
                     idUsuario,
+                ]);
+            }).then(result => {
+                resolve(result);
+            }).catch(err => {
+                reject(err);
+            });
+        })
+    }
+
+    Clientes.prototype.modificarDomicilio = (idCliente, domicilio) => {
+        return new Promise((resolve, reject) => {
+            Mysql.createConnection(config).then(mysqlConn => {
+                const queryString = 
+                `UPDATE cliente_domicilio SET
+                    estado = ?,
+                    municipio = ?,
+                    cp = ?,
+                    colonia = ?,
+                    calle = ?,
+                    noExterno = ?,
+                    noInterno = ?,
+                    referencia = ?
+                WHERE id = ? AND idUsuario = ?`;
+                return mysqlConn.query(queryString, [
+                    domicilio.estado,
+                    domicilio.municipio,
+                    domicilio.cp,
+                    domicilio.colonia,
+                    domicilio.calle,
+                    domicilio.noExterno,
+                    domicilio.noInterno,
+                    domicilio.referencia,
+                    idCliente,
+                    idUsuario
                 ]);
             }).then(result => {
                 resolve(result);
