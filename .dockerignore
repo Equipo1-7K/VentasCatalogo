@@ -72,11 +72,5 @@ typings/
 # Serverless directories
 .serverless
 
-# eslint
-.eslintrc.json
-
-# compilado
-dist/
-dist/*
-
-application.old/
+# Docker ignore itself
+.dockerignore

@@ -36,7 +36,7 @@ Una vez descargado todo y estando en la carpeta del proyecto, procedemos a lanza
 * Listo, eso es básicamente todo
 
 **Desde Visual Studio Code:**
-* Ve a la cuarta opción del pánel de la derecha (no se cómo poner imágenes aquí, en cuanto averigüe cómo, actualizo esto)
+* Ve a la cuarta opción del pánel de la izquierda (no se cómo poner imágenes aquí, en cuanto averigüe cómo, actualizo esto)
 * Presiona en el botón play
 * Listo, ahora se abre en módo depuración, pueden hacer mas cosas desde aquí que desde consola, pero eso es tema para otro día
 
