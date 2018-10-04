@@ -6,7 +6,7 @@
  */
 
 const router = require("express").Router();
-const Usuario = new (require("./Usuario_Controller"))();
+const Usuarios = new (require("./Usuarios_Controller"))();
 
 /**
  * @swagger
@@ -40,6 +40,6 @@ const Usuario = new (require("./Usuario_Controller"))();
  *       default:
  *         $ref: "#/responses/default"
  */
-router.post("/", Usuario.crear);
+router.post("/", Usuarios.crear);
 
 module.exports = router;

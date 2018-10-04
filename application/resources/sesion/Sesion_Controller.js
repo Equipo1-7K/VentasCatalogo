@@ -1,18 +1,15 @@
 const HttpResponse = require("../../system/HttpResponse");
-const swaggerConfig = require("../../system/SwaggerConfig");
-const swaggerJSDoc = require("swagger-jsdoc");
 const SwaggerValidator = require("swagger-object-validator");
 const SHA256 = require("js-sha256");
 
-const Sesion = require("./Sesion_Model");
-const Usuario = require("../usuario/Usuario_Model");
+const Sesion_Model = require("./Sesion_Model");
+const Usuarios_Model = require("../usuarios/Usuarios_Model");
 const ControllerException = require("../../system/Exceptions").ControllerException;
 const ValidationException = require("../../system/Exceptions").ValidationException;
 
 // Declaración de la clase
 module.exports = (function() {
-    const swaggerSpec = swaggerJSDoc(swaggerConfig);
-    const validator = new SwaggerValidator.Handler(swaggerSpec);
+    const validator = new SwaggerValidator.Handler(global.swaggerSpec);
 
     function Sesion_Controller() {}
 
@@ -50,8 +47,8 @@ module.exports = (function() {
      */
     Sesion_Controller.prototype.iniciarSesion = (req, res) => {
         const response = new HttpResponse(res);
-        const sesion = new Sesion();
-        const usuario = new Usuario();
+        const sesion = new Sesion_Model();
+        const usuario = new Usuarios_Model();
         validator.validateModel(req.body, "Sesion_InicioSesion_Req").then(data => {
             if (data.errors.length > 0) throw new ValidationException(data.errors);
 
@@ -78,12 +75,47 @@ module.exports = (function() {
             return sesion.iniciarSesion(usuario[0]);
         }).then(usuario => {
             // Devolvemos el usuario con su token
-            response.ok(usuario);
+            response.created(usuario);
         }).catch(ControllerException, ValidationException, err => {
             err.response(response);
         }).catch(err => {   
             console.error(err);
             response.ErrorGenerico();
+        });
+    }
+    
+    Sesion_Controller.prototype.cerrarSesion = (req, res) => {
+        const response = new HttpResponse(res);
+        const Sesion = new Sesion_Model();
+
+        Sesion.cerrarSesion(req.token).then(cierre => {
+            response.noContent(null);
+        }).catch(err => {
+            if (err.status == "exception") {
+                response.unauthorized(err);
+            } else {
+                console.error(err);
+                response.ErrorGenerico();
+            }
+        })
+    }
+
+    Sesion_Controller.prototype.verificarSesion = (req, res, next) => {
+        const response = new HttpResponse(res);
+        const Sesion = new Sesion_Model();
+
+        Sesion.verificarSesion(req.headers["authorization"]).then(verificacion => {
+            req.token = req.headers["authorization"];
+            req.idUsuario = verificacion.idUsuario;
+            delete req.headers["authorization"];
+            next();
+        }).catch(err => {
+            if (err.status == "exception") {
+                response.unauthorized({message: "La sesión no está iniciada"});
+            } else {
+                console.error(err.message);
+                response.ErrorGenerico();
+            }
         });
     }
 

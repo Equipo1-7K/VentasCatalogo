@@ -24,30 +24,10 @@ if (process.env["PROD"] != 1) { // Sólo en desarrollo
     });
 }
 
-// Validamos el tipo de contenido (415)
-app.use("/api", (req, res, next) => {
-    console.log(req.headers["content-type"] !== "application/json");
-    if (req.method !== "GET" && 
-        req.headers["content-type"] !== "application/json" && 
-        req.headers["content-type"] !== "application/x-www-form-urlencoded"
-    ) {
-        const response = new HttpResponse(res);
-        response.unsupportedMediaType({
-            message: "Sólo se aceptan formatos 'application/json' ó 'x-www-form-urlencoded'"
-        });
-    } else {
-        next();
-    }
-});
-
-// Obtenemos los routers
-const Sesion_Router = require("./resources/sesion/Sesion_Router");
-const Usuario_Router = require("./resources/usuario/Usuario_Router");
 
 // Registramos los routers
-app.use("/api", logCatcher); // Middleware para el log de las rutas
-app.use("/api/sesion", Sesion_Router);
-app.use("/api/usuario", Usuario_Router);
+const routes = require("./resources/routes");
+app.use("/api", logCatcher, routes); // Middleware para el log de las rutas
 
 // Manejamos el 404
 app.use((req, res) => {

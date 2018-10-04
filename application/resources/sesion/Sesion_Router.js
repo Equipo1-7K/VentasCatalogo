@@ -8,6 +8,7 @@
 const router = require("express").Router();
 const Sesion = new (require("./Sesion_Controller"))();
 const HttpResponse = require("../../system/HttpResponse");
+const middlewareSesion = (new (require("./Sesion_Controller"))()).verificarSesion;
 
 /**
  * @swagger
@@ -31,7 +32,7 @@ const HttpResponse = require("../../system/HttpResponse");
  *         schema:
  *           $ref: '#/definitions/Sesion_InicioSesion_Req'
  *     responses:
- *       200:
+ *       201:
  *         description: Los datos del usuario y el token de sesión
  *         type: object
  *         schema:
@@ -42,6 +43,26 @@ const HttpResponse = require("../../system/HttpResponse");
  *         $ref: "#/responses/default"
  */
 router.post("/", Sesion.iniciarSesion);
+
+/**
+ * @swagger
+ * /sesion:
+ *   delete:
+ *     security:
+ *       - JWT: []
+ *     tags:
+ *      - Sesiones
+ *     summary: Cerrar Sesión
+ *     description: Cierra la sesión a partir del token
+ *     produces:
+ *      - application/json
+ *     responses:
+ *       204:
+ *         description: nada xd
+ *       default:
+ *         $ref: "#/responses/default"
+ */
+router.delete("/", middlewareSesion, Sesion.cerrarSesion);
 
 // Método no admitido
 router.use((req, res) => {

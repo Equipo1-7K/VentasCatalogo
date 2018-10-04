@@ -3,7 +3,7 @@ const SwaggerValidator = require("swagger-object-validator"); // Validador a par
 const SaltGenerator = require("randomstring");
 const SHA256 = require("js-sha256");
 
-const Usuario = require("./Usuario_Model");
+const Usuarios = require("./Usuarios_Model");
 const ControllerException = require("../../system/Exceptions").ControllerException;
 const ValidationException = require("../../system/Exceptions").ValidationException;
 
@@ -11,7 +11,7 @@ const ValidationException = require("../../system/Exceptions").ValidationExcepti
 module.exports = (function() {
     const validator = new SwaggerValidator.Handler(global.swaggerSpec); // Se crea validador a partir de swaggerSpec
     
-    function Usuario_Controller() { }   
+    function Usuarios_Controller() { }   
 
     /**
      * @swagger
@@ -52,9 +52,9 @@ module.exports = (function() {
      *       apMaterno:
      *         type: string
      */
-    Usuario_Controller.prototype.crear = (req, res) => {
+    Usuarios_Controller.prototype.crear = (req, res) => {
         const response = new HttpResponse(res);
-        const usuario = new Usuario();
+        const usuario = new Usuarios();
 
         validator.validateModel(req.body, "Usuario_Crear_Req").then(data => {
             // Si hay errores en la validación, se envía la exepción
@@ -74,14 +74,14 @@ module.exports = (function() {
                 throw new Error(sqlErr);
             }
         }).then(metaInsert => {
-            // Ponemos el nuevo recurso
-            res.header("Location", "/usuario/" + metaInsert.insertId);
-
             // Obtenemos el objeto creado
             return usuario.obtenerPorId(metaInsert.insertId);
         }).then(usuarioNuevo => {
+            // Ponemos el nuevo recurso
+            res.header("Location", "/usuario/" + usuarioNuevo.id);
+
             // Enviamos el nuevo objeto
-            response.created(usuarioNuevo[0]);
+            response.created(usuarioNuevo);
         }).catch(ControllerException, ValidationException, err => { // Errores de controlador
             // Se responde con lo definido en el objeto de la exepción
             err.response(response);
@@ -95,5 +95,5 @@ module.exports = (function() {
         });
     }
 
-    return Usuario_Controller;
+    return Usuarios_Controller;
 })();

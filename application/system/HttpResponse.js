@@ -58,6 +58,20 @@
  *     properties:
  *       message:
  *         type: string
+ * 
+ * definitions:
+ *   Paginado:
+ *     type: object,
+ *     properties:
+ *       page:
+ *         type: number
+ *         minimum: 1
+ *         description: El número de página, comenzando en 1
+ *       perPage:
+ *         type: number
+ *         minimum: 1
+ *         description: Los elementos de página
+ * 
  */
 
 // Declaración de la clase

@@ -1,7 +1,6 @@
 const Mysql = require("promise-mysql");
+const UUID = require("uuid/v4");
 const config = __appconfig.database;
-
-const tokenHelper = require("../../system/TokenHelper");
 
 // Declaración de la clase
 module.exports = (function() {    
@@ -10,30 +9,57 @@ module.exports = (function() {
 
     Sesion_Model.prototype.iniciarSesion = (usuario) => {
         // Obtenemos el usuario
+        token = UUID();
         return new Promise((resolve, reject) => {
-            const token = tokenHelper.createToken(usuario);
-            Mysql.createConnection(config).then((mysqlConn) => {
-                return mysqlConn.query("INSERT INTO sesiones VALUES (?, ?, DEFAULT, NULL)", [
+            Mysql.createConnection(config).then(mysqlConn => {
+                return mysqlConn.query("INSERT INTO sesiones VALUES (?, ?, DEFAULT, DEFAULT)", [
                     token,
                     usuario.id
-                ]);
-            }).then(result => {
+                ])
+            }).then(() => {
                 usuario.token = token;
                 resolve(usuario);
             }).catch(err => {
                 reject(err);
             })
+        });
+    }
+
+    Sesion_Model.prototype.cerrarSesion = (token) => {
+        return new Promise((resolve, reject) => {
+            Mysql.createConnection(config).then(mysqlConn => {
+                return mysqlConn.query("UPDATE sesiones SET fechaCierre = CURRENT_TIMESTAMP WHERE token = ? AND fechaCierre IS NULL", [
+                    token
+                ])
+            }).then(result => {
+                if (result.affectedRows > 0) { // Si efectivamente se cerró una sesión
+                    resolve({status: "ok", message: "La sesión ha sido cerrada con éxito"})
+                } else { // Si no, pos no pues..
+                    reject({status: "exception", message: "La sesión no es válida"})
+                }
+            }).catch(err => { // Para este punto, todo se murió
+                reject({status: "error", message: err});
+            });
+        });
+    }
+
+    Sesion_Model.prototype.verificarSesion = (token) => {
+        return new Promise((resolve, reject) => {
+            Mysql.createConnection(config).then(mysqlConn => {
+                return mysqlConn.query("SELECT idUsuario FROM sesiones WHERE token = ? AND fechaCierre IS NULL", [
+                    token
+                ])
+            }).then(result => {
+                if (result.length > 0) {
+                    resolve(result[0]);
+                } else {
+                    reject({status: "exception", message: "Sesión inválida"});
+                }
+            }).catch(err => {
+                reject({status: "exception", message: err});
+            })
         })
     }
 
-    Sesion_Model.prototype.verificarSesion = () => {
-
-    }
-
-    Sesion_Model.prototype.cerrarSesion = () => {
-
-    }
-
     return Sesion_Model;
-
 })();

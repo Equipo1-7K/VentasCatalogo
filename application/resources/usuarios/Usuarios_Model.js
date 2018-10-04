@@ -6,9 +6,9 @@ console.log(__dirname);
 // Declaración de la clase
 module.exports = (function() {
     
-    function Usuario_Model() { }
+    function Usuarios_Model() { }
 
-    Usuario_Model.prototype.obtenerContrasenaPorCoreo = (correo) => {
+    Usuarios_Model.prototype.obtenerContrasenaPorCoreo = (correo) => {
         return new Promise((resolve, reject) => {
             Mysql.createConnection(config).then(mysqlConn => {
                 return mysqlConn.query("SELECT sal, contrasena FROM usuarios WHERE correo = ?", [
@@ -22,7 +22,7 @@ module.exports = (function() {
         })
     }
 
-    Usuario_Model.prototype.obtenerParaLogin = (correo, contrasena) => {
+    Usuarios_Model.prototype.obtenerParaLogin = (correo, contrasena) => {
         return new Promise((resolve, reject) => {
             Mysql.createConnection(config).then(mysqlConn => {
                 return mysqlConn.query("SELECT id, correo, nombre, apPaterno, apMaterno FROM usuarios WHERE correo = ? AND contrasena = ?", [
@@ -37,21 +37,21 @@ module.exports = (function() {
         });
     }
 
-    Usuario_Model.prototype.obtenerPorId = (idUsuario) => {
+    Usuarios_Model.prototype.obtenerPorId = (idUsuario) => {
         return new Promise((resolve, reject) => {
             Mysql.createConnection(config).then(mysqlConn => {
                 return mysqlConn.query("SELECT id, correo, nombre, apPAterno, apMaterno FROM usuarios WHERE id = ?", [
                     idUsuario
                 ]);
             }).then(usuario => {
-                resolve(usuario);
+                resolve(usuario[0]);
             }).catch(err => {
                 reject(err);
             })
         });
     }
 
-    Usuario_Model.prototype.obtenerPorCorreo = (correo) => {
+    Usuarios_Model.prototype.obtenerPorCorreo = (correo) => {
         return new Promise((resolve, reject) => {
             Mysql.createConnection(config).then(mysqlConn => {
                 return mysqlConn.query("SELECT id, correo, nombre, apPAterno, apMaterno FROM usuarios WHERE correo = ?", [
@@ -65,7 +65,7 @@ module.exports = (function() {
         });
     }
 
-    Usuario_Model.prototype.crear = (usuarioNuevo) => {
+    Usuarios_Model.prototype.crear = (usuarioNuevo) => {
         return new Promise((resolve, reject) => {
             Mysql.createConnection(config).then(mysqlConn => {
                 return mysqlConn.query("INSERT INTO usuarios VALUES (NULL, ?, ?, ?, ?, ?, ?, DEFAULT, DEFAULT, NULL)", [
@@ -84,5 +84,5 @@ module.exports = (function() {
         })
     }
 
-    return Usuario_Model;
+    return Usuarios_Model;
 })();
