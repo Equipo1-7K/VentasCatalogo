@@ -16,12 +16,7 @@
  *         type: array
  *         items:
  *           type: object
- *           properties:
- *             producto:
- *               type: object
- *               $ref: '#/definitions/Producto'
- *             cantidad:
- *               type: number
+ *           $ref: '#/definitions/ProductosVenta'
  *       pago:
  *         type: object
  *         properties:
@@ -36,15 +31,15 @@
  *             type: integer
  *           fechaInicio:
  *             type: string
+ *           totalVenta:
+ *             type: Number
+ *           totalAbono:
+ *             type: Number
  *           abonosRealizados:
  *             type: array
  *             items:
  *               type: object
- *               properties:
- *                 fecha:
- *                   type: string
- *                 cantidad:
- *                   type: number
+ *               $ref: "#/definitions/Abono"
  *   VentaNuevo:
  *     type: object
  *     required:
@@ -59,15 +54,7 @@
  *         type: array
  *         items:
  *           type: object
- *           required:
- *            - producto
- *            - cantidad
- *           properties:
- *             producto:
- *               type: string
- *               match: '^[\da-fA-F]{24}$'
- *             cantidad:
- *               type: number
+ *           $ref: '#/definitions/ProductosVenta'
  *       pago:
  *         type: object
  *         required:
@@ -87,6 +74,7 @@
 const mongoose = require("mongoose");
 const MetaFields = require("../system/MetaFields");
 const Usuario_Model = require("./Usuario_Model");
+const ProductosVenta_Model = require("./ProductoVenta_Model")
 
 const Venta = new mongoose.Schema({
     cliente: {
@@ -95,20 +83,19 @@ const Venta = new mongoose.Schema({
         required: true
     },
     productos: [{
-        type: new mongoose.Schema({
-            producto: {
-                type: mongoose.Schema.Types.ObjectId,
-                ref: "Productos",
-                required: true
-            },
-            cantidad: {
-                type: Number,
-                required: true
-            }
-        }, {_id: false}),
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ProductosVenta",
         required: true
     }],
     pago: {
+        totalVenta: {
+            type: Number,
+            default: 0
+        },
+        totalAbonado: {
+            type: Number,
+            default: 0
+        },
         tipo: {
             type: String,
             enum: ["Credito", "Contado"],
@@ -127,16 +114,8 @@ const Venta = new mongoose.Schema({
             required: false
         },
         abonosRealizados: [{
-            type: new mongoose.Schema({
-                fecha: {
-                    type: Date,
-                    required: true
-                },
-                cantidad: {
-                    type: Number,
-                    required: true
-                }
-            }, {_id: false}),
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Abonos",
             required: false
         }],
     }
@@ -147,6 +126,11 @@ Venta.statics.obtenerPorId = function(id) {
 
     return new Promise((resolve, reject) => {
         db.findOne({_id: id})
+            .populate("cliente")
+            .populate({
+                path: "productos.producto",
+                model: "Productos"
+            })
             .then((producto) => { resolve(producto); })
             .catch((err) => { reject(err); });
     });
@@ -154,10 +138,18 @@ Venta.statics.obtenerPorId = function(id) {
 
 Venta.statics.obtenerPorUsuario = function(id) {
     return new Promise((resolve, reject) => {
-        Usuario_Model.findOne({_id: id})
-            .select({_id: false, productos: true})
-            .populate("ventas")
-            .then((productos) => { resolve(productos.productos); })
+        Usuario_Model
+            .findOne({_id: id})
+            .select({_id: false, ventas: true})
+            .populate({
+                path: "ventas",
+                populate: {
+                    path: "cliente productos.producto"
+                }
+            })
+            .then((ventas) => {
+                resolve(ventas.ventas); 
+            })
             .catch((err) => { reject(err); });
     });
 };
@@ -167,27 +159,120 @@ Venta.statics.agregar = function(idUsuario, venta) {
 
     console.log(venta);
 
+    // return new Promise((resolve, reject) => {
+    //     db.create(venta)
+    //         .then((venta) => {
+    //             Ventas_Model.obtenerPorId(venta._id)
+    //                 .then((venta) => {
+    //                     venta.pago.totalVenta = 0.0;
+    //                     venta.productos.forEach((producto, index, arr) => {
+    //                         console.log(producto);
+    //                         arr[index].importe =  producto.cantidad * producto.producto.precio
+    //                         venta.pago.totalVenta += arr[index].importe;
+    //                     });
+    //                     if (venta.pago.tipo === "Contado") {
+    //                         venta.pago.totalAbonado = venta.pago.totalVenta;
+    //                     }
+    //                     venta.save()
+    //                         .then((venta) => {
+    //                             resolve(venta);
+    //                         })
+    //                         .catch((err) => {
+    //                              reject(err); 
+    //                         });
+    //                         Usuario_Model.asociarVenta(idUsuario, venta.id)
+    //                             .then(() => {
+    //                                 db.findOne({ _id: venta.id })
+    //                                     .populate("clientes")
+    //                                     .populate("productos.producto")
+    //                                     .then((venta) => { resolve(venta); })
+    //                                     .catch((err) => { reject(err); });
+    //                             })
+    //                             .catch((err) => {
+    //                                 reject(err); 
+    //                             });
+    //                     })
+    //                     .catch((err) => {
+    //                         reject(err);
+    //                     });
+    //         })
+    //         .catch((err) => {
+    //             reject(err);
+    //         });
+    // });
+
     return new Promise((resolve, reject) => {
+        // Aislamos los productos
+        const productos = venta.productos;
+        delete venta.productos;
+
+        // Creamos la venta
         db.create(venta)
             .then((venta) => {
-                Usuario_Model.asociarVenta(idUsuario, venta.id)
-                    .then(() => {
-                        db.findOne({ _id: venta.id })
-                            .populate("clientes")
-                            .populate("productos.producto")
-                            .then((venta) => { resolve(venta); })
-                            .catch((err) => { reject(err); });
+                // Calculamos el total para cada producto y la venta en general
+                venta.pago.totalVenta = 0.0;
+                productos.forEach((producto, index, arr) => {
+                    arr[index].importe =  producto.cantidad * producto.producto.precio;
+                    venta.pago.totalVenta += arr[index].importe;
+                    arr[index].venta = venta._id;
+                });
+
+                // Si es de contado, agregamos un abono por el total
+                if (venta.pago.tipo === "Contado") {
+                    Venta.statics.abonar(venta._id, venta.pago.totalVenta);
+                }
+
+                // Agregamos cada uno de los productos
+                ProductosVenta_Model.agregarVarios(productos)
+                    .then((productos) => {
+                        // Obtenemos los ids de los productos agregados
+                        const ids = productos.map((producto) => {
+                            return producto._id;
+                        });
+
+                        // Asociamos los IDs de los productos agregados a la venta
+                        venta.productos = ids;
+                        venta.save()
+                            .then((venta) => {
+                                resolve(venta);
+                            })
+                            .catch((err) => {
+                                reject(err);
+                            });
                     })
                     .catch((err) => {
-                        reject(err); 
-                    });
+                        reject(err);
+                    })
             })
             .catch((err) => {
                 reject(err);
-            });
+            })
+
+    });
+};
+
+Venta.statics.abonar = function(idVenta, cantidad) {
+    const db = this;
+
+    return new Promise((resolve, reject) => {
+        db.findOneAndUpdate({
+            _id: id
+        }, {
+            $push: {
+                productos: mongoose.Types.ObjectId(idProducto)
+            },
+            "pago.totalAbonado"
+        }, {
+            new: true
+        }).then((usuario) => {
+            resolve(usuario);
+        }).catch((err) => {
+            reject(err);
+        });
     });
 };
 
 Venta.plugin(MetaFields);
 
-module.exports = mongoose.model("Ventas", Venta);
+const Ventas_Model = mongoose.model("Ventas", Venta);
+module.exports = Ventas_Model;
