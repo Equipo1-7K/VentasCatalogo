@@ -1,16 +1,10 @@
-const mongoose = require("mongoose");
-const app = require("./app");
+__appconfig = require("./appConfig");
+global.Promise = require("bluebird").Promise;
 
-const port = 3000;
-mongoose.Promise = global.Promise;
+const app = require("./application/app");
 
-const mongoConnectionString = "mongodb://127.0.0.1:27017/ventasCatalogo";
 
-mongoose.connect(mongoConnectionString, {useNewUrlParser: true})
-    .then(() => {
-        console.log("Se ha conectado a la base de datos");
-        app.listen(port, () => {
-            console.log("Server listening on port " + port);
-        });
-    })
-    .catch((err) => { console.log(err); });
+console.log("Iniciando servidor en modo desarrollo");
+app.listen(3000, () => {
+    console.log("Server listening on port 3000");
+});
