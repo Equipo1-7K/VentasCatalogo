@@ -8,6 +8,24 @@
  *         type: integer
  *       idCliente:
  *         type: integer
+ *       cantProductos:
+ *         type: number
+ *       total:
+ *         type: number
+ *       abono:
+ *         type: object
+ *         properties:
+ *           total:
+ *             type: number
+ *           deuda:
+ *             type: number
+ *       status:
+ *         type: string
+ *         enum:
+ *          - Sin Pago
+ *          - Abonado
+ *          - Pagado
+ *          - Desconocido
  *       pago:
  *         type: object
  *         properties:
@@ -27,6 +45,7 @@
  *             type: string
  *           intervaloPago:
  *              type: integer
+ * 
  *   Venta_Productos:
  *     type: object
  *     properties:
@@ -39,6 +58,30 @@
  *       precio:
  *         type: number
  *       cantidad:
+ *         type: number
+ * 
+ *   Venta_AbonoRealizado:
+ *     type: object
+ *     properties:
+ *       idVenta:
+ *         type: integer
+ *       cantidad:
+ *         type: number
+ *       fecha:
+ *         type: string
+ * 
+ *   Venta_AbonoGenerado:
+ *     type: object
+ *     properties:
+ *       idVenta:
+ *         type: integer
+ *       consecutivo:
+ *         type: number
+ *       fechaAPagar:
+ *         type: string
+ *       cantidadAPagar:
+ *         type: number
+ *       pagado:
  *         type: number
  */
 
@@ -111,26 +154,28 @@ module.exports = (function() {
                     const abonoAcordado = total / venta.pago.cantidad; // Calculamos los pagos que se van a hacer
 
                     for (let i = 0; i < venta.pago.cantidad; i++) {
-                        abonosGenerados.push({
-                            idVenta: metaVenta.insertId,
-                            consecutivo: i + 1,
-                            fechaAPagar: Moment(fechaAPagar).format("YYYY-MM-DD HH:mm:ss"),
-                            cantidadAPagar: abonoAcordado,
-                            pagado: 0
-                        });
+                        const insertQuery = 
+                        `(
+                            ${mysqlConn.escape(metaVenta.insertId)},
+                            ${mysqlConn.escape(i + 1)},
+                            ${mysqlConn.escape(Moment(fechaAPagar).format("YYYY-MM-DD HH:mm:ss"))},
+                            ${mysqlConn.escape(abonoAcordado)},
+                            0)`;
+                        abonosGenerados.push(insertQuery);
 
                         fechaAPagar = Moment(fechaAPagar).add(venta.pago.intervaloPago, 'days');
                     }
                 } else {
                     let i = 0;
                     while (total > 0) {
-                        abonosGenerados.push({
-                            idVenta: metaVenta.insertId,
-                            consecutivo: i + 1,
-                            fechaAPagar: Moment(fechaAPagar).format("YYYY-MM-DD HH:mm:ss"),
-                            cantidadAPagar: (total - venta.pago.cantidad > 0 ? venta.pago.cantidad : total),
-                            pagado: 0
-                        });
+                        const insertQuery = 
+                        `(
+                            ${mysqlConn.escape(metaVenta.insertId)},
+                            ${mysqlConn.escape(i + 1)},
+                            ${mysqlConn.escape(Moment(fechaAPagar).format("YYYY-MM-DD HH:mm:ss"))},
+                            ${mysqlConn.escape(total - venta.pago.cantidad > 0 ? venta.pago.cantidad : total)},
+                            0)`;
+                        abonosGenerados.push(insertQuery);
 
                         fechaAPagar = Moment(fechaAPagar).add(venta.pago.intervaloPago, 'days');
                         total -= venta.pago.cantidad;
@@ -138,17 +183,7 @@ module.exports = (function() {
                     }
                 }
 
-                console.log("abonosGenerados" + JSON.stringify(abonosGenerados));
-                // Insertamos los abonos generados
-                return Promise.each(abonosGenerados, abono => {
-                    return mysqlConn.query("INSERT INTO venta_abonosGenerados VALUES (?, ?, ?, ?, ?)", [
-                        abono.idVenta,
-                        abono.consecutivo,
-                        abono.fechaAPagar,
-                        abono.cantidadAPagar,
-                        abono.pagado
-                    ]);
-                })
+                return mysqlConn.query("INSERT INTO venta_abonosGenerados VALUES " + abonosGenerados.join());
             }).then(result => {
                 resolve(metaVenta);
             }).catch(err => {
@@ -160,13 +195,13 @@ module.exports = (function() {
     Ventas.prototype.obtenerPorId = (idUsuario, idVenta) => {
         return new Promise((resolve, reject) => {
             Mysql.createConnection(config).then(mysqlConn => {
-                return mysqlConn.query("SELECT * FROM ventas WHERE idUsuario = ? AND id = ? AND deletedAt IS NULL", [
+                return mysqlConn.query("SELECT * FROM view_ventas WHERE idUsuario = ? AND id = ? AND deletedAt IS NULL", [
                     idUsuario,
                     idVenta
                 ]);
             }).then(result => {
                 if (result.length > 0) {
-                    resolve(result[0]);
+                    resolve(formatearVenta(result[0]));
                 } else {
                     resolve(null);
                 }
@@ -183,7 +218,7 @@ module.exports = (function() {
             Mysql.createConnection(config).then(mysqlConn => {
                 const queryString = 
                 `SELECT *
-                FROM ventas
+                FROM view_ventas
                 WHERE idUsuario = ? AND deletedAt IS NULL
                 LIMIT ? OFFSET ?`;
                 return mysqlConn.query(queryString, [
@@ -192,7 +227,11 @@ module.exports = (function() {
                     offset
                 ]);
             }).then(result => {
-                resolve(result);
+                const ventas = [];
+                result.forEach(venta => {
+                    ventas.push(formatearVenta(venta));
+                });
+                resolve(ventas);
             }).catch(err => {
                 reject(err);
             });
@@ -205,7 +244,7 @@ module.exports = (function() {
                 const queryString = 
                 `SELECT
                     COUNT(*) AS total
-                FROM venta
+                FROM ventas
                 WHERE idUsuario = ? AND deletedAt IS NULL`;
                 return mysqlConn.query(queryString, [
                     idUsuario
@@ -218,7 +257,7 @@ module.exports = (function() {
         })
     }
 
-    Ventas.prototype.obtenerProductosPorIdPaginado = (idUsuario, idVenta, page, perPage) => {
+    Ventas.prototype.obtenerProductosPaginado = (idUsuario, idVenta, page, perPage) => {
         return new Promise((resolve, reject) => {
             const offset = (page - 1) * perPage;
             const limit = perPage;
@@ -248,7 +287,7 @@ module.exports = (function() {
         })
     }
 
-    Ventas.prototype.obtenerProductosPorIdTotal = (idUsuario, idVenta) => {
+    Ventas.prototype.obtenerProductosTotal = (idUsuario, idVenta) => {
         return new Promise((resolve, reject) => {
             Mysql.createConnection(config).then(mysqlConn => {
                 const queryString = 
@@ -288,22 +327,226 @@ module.exports = (function() {
         })
     }
  
+    Ventas.prototype.obtenerAbonosGeneradosPaginado = (idUsuario, idVenta, page, perPage) => {
+        return new Promise((resolve, reject) => {
+            const offset = (page - 1) * perPage;
+            const limit = perPage;
+            Mysql.createConnection(config).then(mysqlConn => {
+                const queryString = 
+                `SELECT vag.*
+                FROM venta_abonosGenerados AS vag
+                    INNER JOIN ventas AS v ON v.id = vag.idVenta
+                WHERE v.idUsuario = ? AND vag.idVenta = ? AND v.deletedAt IS NULL
+                LIMIT ? OFFSET ?`;
+                return mysqlConn.query(queryString, [
+                    idUsuario,
+                    idVenta,
+                    limit,
+                    offset
+                ]);
+            }).then(result => {
+                resolve(result);
+            }).catch(err => {
+                reject(err);
+            });
+        })
+    }
+ 
+    Ventas.prototype.obtenerAbonosGeneradosTotal = (idUsuario, idVenta) => {
+        return new Promise((resolve, reject) => {
+            Mysql.createConnection(config).then(mysqlConn => {
+                const queryString = 
+                `SELECT
+                    COUNT(*) AS total
+                FROM venta_abonosGenerados AS vag
+                    INNER JOIN ventas AS v ON v.id = vag.idVenta
+                WHERE v.idUsuario = ? AND vag.idVenta = ? AND v.deletedAt IS NULL`;
+                return mysqlConn.query(queryString, [
+                    idUsuario,
+                    idVenta,
+                ]);
+            }).then(result => {
+                resolve(result[0].total);
+            }).catch(err => {
+                reject(err);
+            });
+        })
+    }
+ 
+    Ventas.prototype.obtenerAbonosRealizadosPaginado = (idUsuario, idVenta, page, perPage) => {
+        return new Promise((resolve, reject) => {
+            const offset = (page - 1) * perPage;
+            const limit = perPage;
+            Mysql.createConnection(config).then(mysqlConn => {
+                const queryString = 
+                `SELECT var.*
+                FROM venta_abonosRealizados AS var
+                    INNER JOIN ventas AS v ON v.id = var.idVenta
+                WHERE v.idUsuario = ? AND var.idVenta = ? AND v.deletedAt IS NULL
+                LIMIT ? OFFSET ?`;
+                return mysqlConn.query(queryString, [
+                    idUsuario,
+                    idVenta,
+                    limit,
+                    offset
+                ]);
+            }).then(result => {
+                resolve(result);
+            }).catch(err => {
+                reject(err);
+            });
+        })
+    }
+ 
+    Ventas.prototype.obtenerAbonosRealizadosTotal = (idUsuario, idVenta) => {
+        return new Promise((resolve, reject) => {
+            Mysql.createConnection(config).then(mysqlConn => {
+                const queryString = 
+                `SELECT
+                    COUNT(*) AS total
+                FROM venta_abonosRealizados AS vag
+                    INNER JOIN ventas AS v ON v.id = vag.idVenta
+                WHERE v.idUsuario = ? AND vag.idVenta = ? AND v.deletedAt IS NULL`;
+                return mysqlConn.query(queryString, [
+                    idUsuario,
+                    idVenta,
+                ]);
+            }).then(result => {
+                resolve(result[0].total);
+            }).catch(err => {
+                reject(err);
+            });
+        })
+    }
+
+    Ventas.prototype.obtenerRestantePorAbonarPorId = (idUsuario, idVenta) => {
+        return new Promise((resolve, reject) => {
+            Mysql.createConnection(config).then(mysqlConn => {
+                const queryString = 
+                `SELECT SUM(cantidadAPagar - pagado) AS restante
+                FROM venta_abonosGenerados AS vag
+                    INNER JOIN ventas AS v ON v.id = vag.idVenta
+                WHERE v.idUsuario = ? AND vag.idVenta = ? AND v.deletedAt IS NULL`;
+                return mysqlConn.query(queryString, [
+                    idUsuario,
+                    idVenta
+                ]);
+            }).then(result => {
+                resolve(result[0].restante);
+            }).catch(err => {
+                reject(err);
+            });
+        })
+    }
+
+    Ventas.prototype.obtenerAbonoRealizadoPorId = (idUsuario, idAbonoRealizado) => {
+        return new Promise((resolve, reject) => {
+            Mysql.createConnection(config).then(mysqlConn => {
+                const queryString = 
+                `SELECT * FROM
+                    venta_abonosRealizados AS var
+                        INNER JOIN ventas AS v ON var.idVenta = v.id
+                WHERE
+                    v.idUsuario = ? AND
+                    var.id = ?`
+                return mysqlConn.query(queryString, [
+                    idUsuario,
+                    idAbonoRealizado
+                ]);
+            }).then(result => {
+                if (result.length > 0) {
+                    resolve(result[0]);
+                } else {
+                    resolve(null);
+                }
+            }).catch(err => {
+                reject(err);
+            });
+        })
+    }
+
+    Ventas.prototype.agregarAbono = (idVenta, abono) => {
+        const abonosAfectados = [];
+        let abonoAgregado;
+
+        return new Promise((resolve, reject) => {
+            Mysql.createConnection(config).then(mysqlConn => {
+                return mysqlConn.query("INSERT INTO venta_abonosRealizados VALUES (NULL, ?, ?, CURRENT_TIMESTAMP)", [
+                    idVenta,
+                    abono.cantidad
+                ]);
+            }).then(result => {
+                abonoAgregado = result;
+                return Mysql.createConnection(config);
+            }).then(mysqlConn => {
+                return mysqlConn.query("SELECT * from venta_abonosGenerados WHERE idVenta = ? AND pagado < cantidadAPagar", [
+                    idVenta
+                ])
+            }).then(abonosGenerados => {
+                for (index in abonosGenerados) {
+                    // Aquí calculamos la cantidad de abonos que vamos a afectar
+                    const cantidadAPagar = abonosGenerados[index].cantidadAPagar - abonosGenerados[index].pagado;
+                    
+                    if (cantidadAPagar < abono.cantidad) {
+                        abonosAfectados.push({
+                            consecutivo: abonosGenerados[index].consecutivo,
+                            pagado: abonosGenerados[index].cantidadAPagar
+                        });
+                        abono.cantidad -= cantidadAPagar;
+                    } else {
+                        abonosAfectados.push({
+                            consecutivo: abonosGenerados[index].consecutivo,
+                            pagado: abonosGenerados[index].pagado + abono.cantidad
+                        });
+                        abono.cantidad = 0;
+                    }
+
+                    if (abono.cantidad == 0) break;
+                }
+
+                return Mysql.createConnection(config);
+            }).then(mysqlConn => {
+                return new Promise.each(abonosAfectados, abono => {
+                    const queryString = 
+                    `UPDATE venta_abonosGenerados SET
+                        pagado = ?
+                    WHERE idVenta = ? AND consecutivo = ?`;
+                    return mysqlConn.query(queryString, [
+                        abono.pagado,
+                        idVenta,
+                        abono.consecutivo
+                    ]);
+                })
+            }).then(result => {
+                resolve(abonoAgregado);
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    }
+
     return Ventas;
 })();
 
-const lawea = {
-    idCliente: 1,
-    pago: {
-        tipo: ("Credito" || "Contado"),
-        acuerdo: ("Parcialidades" || "Dinero"),
-        cantidad: 5,
-        fechaPrimerPago: "2018-10-04 12:00:00",
-        intervaloPago: 15
-    },
-    productos: [
-        {
-            idProducto: 1,
-            cantidad: 1
+const formatearVenta = (venta) => (
+     {
+        id: venta.id,
+        idCliente: venta.idCliente,
+        cantProductos: venta.cantidadProductos,
+        total: venta.total,
+        abono: {
+            total: venta.abonado,
+            deuda: venta.deuda,
+            fechaSiguientePago: venta.fechaSiguientePago || undefined,
+            cantidadSiguientePago: venta.cantidadSiguientePago || undefined
+        },
+        status: venta.status,
+        pago: {
+            tipo: venta.tipoPago,
+            acuerdo: venta.tipoAcuerdo,
+            cantidad: venta.cantidadAcuerdo,
+            fechaPrimerPago: venta.fechaPrimerPago,
+            intervaloPago: venta.intervaloPago
         }
-    ]
-}
+    }
+);

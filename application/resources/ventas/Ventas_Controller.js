@@ -93,7 +93,7 @@ module.exports = (function() {
 
             return Venta.obtenerProductosPorIdPaginado(req.idUsuario, req.params.id, req.query.page, req.query.perPage);
         }).then(productosVenta => {
-            productosVenta.items = productosVenta;
+            productosVentaObtenidos.items = productosVenta;
             return Venta.obtenerProductosPorIdTotal(req.idUsuario, req.params.id);
         }).then(total => {
             productosVentaObtenidos.total = total || 0;
@@ -157,7 +157,6 @@ module.exports = (function() {
     Ventas_Controller.prototype.agregar = (req, res) => {
         const response = new HttpResponse(res);
         const Venta = new Ventas_Model();
-        console.log(validator.validateModel);
         validator.validateModel(req.body, "Venta_Agregar_Req").then(data => {
             // Si hay errores en la validación, se envía la exepción
             if (data.errors.length > 0) throw new ValidationException(data.errors);
@@ -238,5 +237,142 @@ module.exports = (function() {
         });
     }
 
+
+    /**
+     * @swagger
+     * definitions:
+     * 
+     *   Venta_AgregarAbono_Req:
+     *     type: object
+     *     properties:
+     *       cantidad:
+     *         type: number
+     */
+    Ventas_Controller.prototype.agregarAbono = (req, res) => {
+        const response = new HttpResponse(res);
+        const Venta = new Ventas_Model();
+        validator.validateModel(req.body, "Venta_AgregarAbono_Req").then(data => {
+            // Si hay errores en la validación, se envía la exepción
+            if (data.errors.length > 0) throw new ValidationException(data.errors);
+            return Venta.obtenerPorId(req.idUsuario, req.params.id)
+        }).then(result => {
+            if (!result) throw new ControllerException("notFound", {message: "La venta a abonar no existe"});
+            return Venta.obtenerRestantePorAbonarPorId(req.idUsuario, req.params.id);
+        }).then(restante => {
+            if (req.body.cantidad > restante) throw new ControllerException("conflict", {message: "No se puede abonar mas de lo que se debe"});
+            return Venta.agregarAbono(req.params.id, req.body);
+        }).then(result => {
+            return Venta.obtenerAbonoRealizadoPorId(req.idUsuario, result.insertId);
+        }).then(abonoAgregado => {
+            response.created(abonoAgregado);
+        }).catch(ControllerException, ValidationException, err => {
+            err.response(response);
+        }).catch(err => {
+            console.error(err);
+            response.ErrorGenerico();
+        })
+    }
+
+    /**
+     * @swagger
+     * definitions:
+     * 
+     *   VentaAbonosRealizados_ObtenerPaginado_Res:
+     *     type: object
+     *     properties:
+     *       items:
+     *         type: array
+     *         items:
+     *           $ref: '#/definitions/Venta_AbonoRealizado'
+     *       total:
+     *         type: integer
+     */
+    Ventas_Controller.prototype.obtenerAbonosRealizadosPaginado = (req, res) => {
+        const response = new HttpResponse(res);
+        const Venta = new Ventas_Model();
+
+        let abonosRealizadosObtenidos = { };
+
+        try {
+            req.query.page = parseInt(req.query.page);
+            req.query.perPage = parseInt(req.query.perPage);
+        } catch (e) { }
+
+        validator.validateModel(req.query, "Paginado").then(data => {
+            // Si hay errores en la validación, se envía la exepción
+            if (data.errors.length > 0) throw new ValidationException(data.errors);
+
+            return Venta.obtenerAbonosRealizadosPaginado(req.idUsuario, req.params.id, req.query.page, req.query.perPage);
+        }).then(abonosRealizados => {
+            abonosRealizadosObtenidos.items = abonosRealizados;
+            return Venta.obtenerAbonosRealizadosTotal(req.idUsuario, req.params.id);
+        }).then(total => {
+            abonosRealizadosObtenidos.total = total || 0;
+            response.ok(abonosRealizadosObtenidos);
+        }).catch(ControllerException, ValidationException, err => { // Errores de controlador
+
+            // Se responde con lo definido en el objeto de la exepción
+            err.response(response);
+
+        }).catch(err => { // Error desconocido
+
+            // Se imprime en consola el error
+            console.error(err)
+
+            // Se muestra al usuario un error genérico
+            response.ErrorGenerico();
+        });
+    }
+
+    /**
+     * @swagger
+     * definitions:
+     * 
+     *   VentaAbonosGenerados_ObtenerPaginado_Res:
+     *     type: object
+     *     properties:
+     *       items:
+     *         type: array
+     *         items:
+     *           $ref: '#/definitions/Venta_AbonoGenerado'
+     *       total:
+     *         type: integer
+     */
+    Ventas_Controller.prototype.obtenerAbonosGeneradosPaginado = (req, res) => {
+        const response = new HttpResponse(res);
+        const Venta = new Ventas_Model();
+
+        let abonosRealizadosObtenidos = { };
+
+        try {
+            req.query.page = parseInt(req.query.page);
+            req.query.perPage = parseInt(req.query.perPage);
+        } catch (e) { }
+
+        validator.validateModel(req.query, "Paginado").then(data => {
+            // Si hay errores en la validación, se envía la exepción
+            if (data.errors.length > 0) throw new ValidationException(data.errors);
+
+            return Venta.obtenerAbonosGeneradosPaginado(req.idUsuario, req.params.id, req.query.page, req.query.perPage);
+        }).then(abonosRealizados => {
+            abonosRealizadosObtenidos.items = abonosRealizados;
+            return Venta.obtenerAbonosGeneradosTotal(req.idUsuario, req.params.id);
+        }).then(total => {
+            abonosRealizadosObtenidos.total = total || 0;
+            response.ok(abonosRealizadosObtenidos);
+        }).catch(ControllerException, ValidationException, err => { // Errores de controlador
+
+            // Se responde con lo definido en el objeto de la exepción
+            err.response(response);
+
+        }).catch(err => { // Error desconocido
+
+            // Se imprime en consola el error
+            console.error(err)
+
+            // Se muestra al usuario un error genérico
+            response.ErrorGenerico();
+        });
+    }
     return Ventas_Controller;
 })();
