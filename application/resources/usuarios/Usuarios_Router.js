@@ -10,7 +10,7 @@ const Usuarios = new (require("./Usuarios_Controller"))();
 
 /**
  * @swagger
- * /usuario:
+ * /usuarios:
  *   post:
  *     tags:
  *      - Usuarios
