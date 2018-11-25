@@ -91,10 +91,10 @@ module.exports = (function() {
             // Si hay errores en la validación, se envía la exepción
             if (data.errors.length > 0) throw new ValidationException(data.errors);
 
-            return Venta.obtenerProductosPorIdPaginado(req.idUsuario, req.params.id, req.query.page, req.query.perPage);
+            return Venta.obtenerProductosPaginado(req.idUsuario, req.params.id, req.query.page, req.query.perPage);
         }).then(productosVenta => {
             productosVentaObtenidos.items = productosVenta;
-            return Venta.obtenerProductosPorIdTotal(req.idUsuario, req.params.id);
+            return Venta.obtenerProductosTotal(req.idUsuario, req.params.id);
         }).then(total => {
             productosVentaObtenidos.total = total || 0;
             response.ok(productosVentaObtenidos);
