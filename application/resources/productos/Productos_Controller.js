@@ -87,7 +87,20 @@ module.exports = (function() {
         });
     }
 
-    // Sin documentación de swagger
+    /**
+     * @swagger
+     * definitions:
+     * 
+     *   Productos_ObtenerPaginado_Res:
+     *     type: object
+     *     properties:
+     *       items:
+     *         type: array
+     *         items:
+     *           $ref: '#/definitions/Producto'
+     *       total:
+     *         type: integer
+     */
     Productos_Controller.prototype.obtenerPaginado = (req, res) => {
         const response = new HttpResponse(res);
         const Producto = new Productos_Model();
