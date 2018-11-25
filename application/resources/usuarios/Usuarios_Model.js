@@ -1,7 +1,5 @@
 const Pool = require("../../system/MysqlPool");
 
-console.log(__dirname);
-
 // Declaración de la clase
 module.exports = (function() {
     
