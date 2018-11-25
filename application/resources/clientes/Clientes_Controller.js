@@ -20,31 +20,46 @@ module.exports = (function() {
      *     properties:
      *       nombre:
      *         type: string
+     *         maxLength: 50
      *       apPaterno:
      *         type: string
+     *         maxLength: 30
      *       apMaterno:
      *         type: string
+     *         maxLength: 30
      *       telefono:
      *         type: string
+     *         maxLength: 15
+     *       correo:
+     *         type: string
+     *         maxLength: 60
      *       domicilio:
      *         type: object
      *         properties:
      *           estado:
      *             type: string
+     *             maxLength: 19
      *           municipio:
      *             type: string
+     *             maxLength: 50
      *           cp:
      *             type: string
+     *             maxLength: 5
      *           colonia:
      *             type: string
+     *             maxLength: 30
      *           calle:
      *             type: string
+     *             maxLength: 30
      *           noExterno:
      *             type: string
+     *             maxLength: 10
      *           noInterno:
      *             type: string
+     *             maxLength: 5
      *           referencia:
      *             type: string
+     *             maxLength: 50
      *         required:
      *          - estado 
      *          - municipio 
@@ -52,13 +67,13 @@ module.exports = (function() {
      *          - colonia 
      *          - calle 
      *          - noExterno 
-     *          - noInterno 
-     *          - referencia 
      *     required:
      *      - nombre
      *      - apPaterno
      *      - apMaterno
      *      - telefono
+     *      - correo
+     *      - domicilio
      */
     Clientes_Controller.prototype.agregar = (req, res) => {
         const response = new HttpResponse(res);
@@ -189,17 +204,25 @@ module.exports = (function() {
      *     properties:
      *       nombre:
      *         type: string
+     *         maxLength: 50
      *       apPaterno:
      *         type: string
+     *         maxLength: 30
      *       apMaterno:
      *         type: string
+     *         maxLength: 30
      *       telefono:
      *         type: string
+     *         maxLength: 15
+     *       correo:
+     *         type: string
+     *         maxLength: 60
      *     required:
      *      - nombre
      *      - apPaterno
      *      - apMaterno
      *      - telefono
+     *      - correo
      */
     Clientes_Controller.prototype.modificar = (req, res) => {
         const response = new HttpResponse(res);
@@ -243,20 +266,28 @@ module.exports = (function() {
      *     properties:
      *       estado:
      *         type: string
+     *         maxLength: 19
      *       municipio:
      *         type: string
+     *         maxLength: 50
      *       cp:
      *         type: string
+     *         maxLength: 5
      *       colonia:
      *         type: string
+     *         maxLength: 30
      *       calle:
      *         type: string
+     *         maxLength: 30
      *       noExterno:
      *         type: string
+     *         maxLength: 10
      *       noInterno:
      *         type: string
+     *         maxLength: 5
      *       referencia:
      *         type: string
+     *         maxLength: 50
      *     required:
      *      - estado
      *      - municipio

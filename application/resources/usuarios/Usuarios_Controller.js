@@ -25,12 +25,17 @@ module.exports = (function() {
      *         pattern: '^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$'
      *       nombre:
      *         type: string
+     *         maxLength: 50
      *       apPaterno:
      *         type: string
+     *         maxLength: 30
      *       apMaterno:
      *         type: string
+     *         maxLength: 30
      *       contrasena:
      *         type: string
+     *         pattern: '.*(?=.*?[0-9])(?=.*?[a-z]).*'
+     *         minLength: 6
      *     required:
      *      - correo
      *      - nombre
