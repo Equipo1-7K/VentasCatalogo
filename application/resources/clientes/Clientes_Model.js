@@ -165,7 +165,7 @@ module.exports = (function() {
                 noExterno = ?,
                 noInterno = ?,
                 referencia = ?
-            WHERE id = ? AND idUsuario = ?`;
+            WHERE idCliente = ?`;
             Pool.query(queryString, [
                 domicilio.estado,
                 domicilio.municipio,
@@ -175,8 +175,7 @@ module.exports = (function() {
                 domicilio.noExterno,
                 domicilio.noInterno,
                 domicilio.referencia,
-                idCliente,
-                idUsuario
+                idCliente
             ]).then(result => {
                 resolve(result);
             }).catch(err => {
