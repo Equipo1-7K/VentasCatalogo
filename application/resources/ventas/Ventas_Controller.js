@@ -171,17 +171,7 @@ module.exports = (function() {
         }).then(result => {
             return Venta.obtenerPorId(req.idUsuario, result.insertId)
         }).then(ventaAgregada => {
-            const ventaFormateada = { };
-            ventaFormateada.id = ventaAgregada.id;
-            ventaFormateada.idCliente = ventaAgregada.idCliente;
-            ventaFormateada.pago = {
-                tipo: ventaAgregada.tipoPago,
-                acuerdo: ventaAgregada.tipoAcuerdo,
-                cantidad: ventaAgregada.cantidadAcuerdo,
-                intervaloPago: ventaAgregada.intervaloPago,
-                fechaPrimerPago: ventaAgregada.fechaPrimerPago
-            }
-            response.created(ventaFormateada);
+            response.created(ventaAgregada);
         }).catch(ControllerException, ValidationException, err => {
             err.response(response);
         }).catch(err => {
