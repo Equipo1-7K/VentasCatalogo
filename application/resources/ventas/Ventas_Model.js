@@ -19,6 +19,10 @@
  *             type: number
  *           deuda:
  *             type: number
+ *           fechaSiguientePago:
+ *             type: string
+ *           cantidadSiguientePago:
+ *             type: number
  *       status:
  *         type: string
  *         enum:
