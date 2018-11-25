@@ -250,11 +250,11 @@ module.exports = (function() {
             const limit = perPage;
             const queryString = 
             `SELECT
-                v.idProducto,
-                v.nombre,
-                v.imagen,
-                v.precio,
-                v.cantidad,
+                vp.idProducto,
+                vp.nombre,
+                vp.imagen,
+                vp.precio,
+                vp.cantidad
             FROM venta_productos AS vp
                 INNER JOIN ventas AS v ON v.id = vp.idVenta
             WHERE v.idUsuario = ? AND vp.idVenta = ? AND v.deletedAt IS NULL
