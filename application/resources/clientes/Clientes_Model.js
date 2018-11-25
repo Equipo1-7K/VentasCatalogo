@@ -14,6 +14,8 @@
  *         type: string
  *       apMaterno:
  *         type: string
+ *       telefono:
+ *         type: string
  *       domicilio:
  *         type: object
  *         properties:
@@ -48,18 +50,14 @@ module.exports = (function() {
         return new Promise((resolve, reject) => {
             let metaResult;
 
-            Mysql.createConnection(config).then(mysqlConn => {
-                return mysqlConn.query("INSERT INTO clientes VALUES (NULL, ?, ?, ?, ?, DEFAULT, DEFAULT, NULL)", [
-                    idUsuario,
-                    cliente.nombre,
-                    cliente.apPaterno,
-                    cliente.apMaterno
-                ]);
-            }).then(result => {
+            Pool.query("INSERT INTO clientes VALUES (NULL, ?, ?, ?, ?, DEFAULT, DEFAULT, NULL)", [
+                idUsuario,
+                cliente.nombre,
+                cliente.apPaterno,
+                cliente.apMaterno
+            ]).then(result => {
                 metaResult = result;
-                return Mysql.createConnection(config);
-            }).then(mysqlConn => {
-                return mysqlConn.query("INSERT INTO cliente_domicilio VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, DEFAULT, DEFAULT, NULL )", [
+                return Pool.query("INSERT INTO cliente_domicilio VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, DEFAULT, DEFAULT, NULL )", [
                     metaResult.insertId,
                     cliente.domicilio.estado,
                     cliente.domicilio.municipio,
@@ -80,12 +78,10 @@ module.exports = (function() {
     
     Clientes.prototype.obtenerPorId = (idUsuario, idCliente) => {
         return new Promise((resolve, reject) => {
-            Mysql.createConnection(config).then(mysqlConn => {
-                return mysqlConn.query("SELECT * FROM clientes WHERE idUsuario = ? AND id = ? AND deletedAt IS NULL", [
-                    idUsuario,
-                    idCliente
-                ]);
-            }).then(result => {
+            Pool.query("SELECT * FROM clientes WHERE idUsuario = ? AND id = ? AND deletedAt IS NULL", [
+                idUsuario,
+                idCliente
+            ]).then(result => {
                 if (result.length > 0) {
                     resolve(result[0]);
                 } else {
@@ -99,12 +95,10 @@ module.exports = (function() {
     
     Clientes.prototype.obtenerDomicilioPorId = (idUsuario, idCliente) => {
         return new Promise((resolve, reject) => {
-            Mysql.createConnection(config).then(mysqlConn => {
-                return mysqlConn.query("SELECT cd.* FROM cliente_domicilio AS cd INNER JOIN clientes AS c on c.id = cd.idCliente WHERE c.idUsuario = ? AND cd.idCliente = ? AND c.deletedAt IS NULL", [
-                    idUsuario,
-                    idCliente
-                ]);
-            }).then(result => {
+            Pool.query("SELECT cd.* FROM cliente_domicilio AS cd INNER JOIN clientes AS c on c.id = cd.idCliente WHERE c.idUsuario = ? AND cd.idCliente = ? AND c.deletedAt IS NULL", [
+                idUsuario,
+                idCliente
+            ]).then(result => {
                 if (result.length > 0) {
                     resolve(result[0]);
                 } else {
@@ -120,13 +114,11 @@ module.exports = (function() {
         const offset = (page - 1) * perPage;
         const limit = perPage;
         return new Promise((resolve, reject) => {
-            Mysql.createConnection(config).then(mysqlConn => {
-                return mysqlConn.query("SELECT * FROM clientes WHERE idUsuario = ? AND deletedAt IS NULL LIMIT ? OFFSET ?", [
-                    idUsuario,
-                    limit,
-                    offset
-                ]);
-            }).then(result => {
+            Pool.query("SELECT * FROM clientes WHERE idUsuario = ? AND deletedAt IS NULL LIMIT ? OFFSET ?", [
+                idUsuario,
+                limit,
+                offset
+            ]).then(result => {
                 resolve(result);
             }).catch(err => {
                 reject(err);
@@ -136,11 +128,9 @@ module.exports = (function() {
 
     Clientes.prototype.obtenerTotal = (idUsuario) => {
         return new Promise((resolve, reject) => {
-            Mysql.createConnection(config).then(mysqlConn => {
-                return mysqlConn.query("SELECT COUNT(*) AS total FROM clientes WHERE idUsuario = ? AND deletedAt IS NULL", [
-                    idUsuario,
-                ]);
-            }).then(result => {
+            Pool.query("SELECT COUNT(*) AS total FROM clientes WHERE idUsuario = ? AND deletedAt IS NULL", [
+                idUsuario,
+            ]).then(result => {
                 resolve(result[0].total);
             }).catch(err => {
                 reject(err);
@@ -150,15 +140,13 @@ module.exports = (function() {
 
     Clientes.prototype.modificar = (idUsuario, idCliente, cliente) => {
         return new Promise((resolve, reject) => {
-            Mysql.createConnection(config).then(mysqlConn => {
-                return mysqlConn.query("UPDATE clientes SET nombre = ?, apPaterno = ?, apMaterno = ? WHERE id = ? AND idUsuario = ?", [
-                    cliente.nombre,
-                    cliente.apPaterno,
-                    cliente.apMaterno,
-                    idCliente,
-                    idUsuario,
-                ]);
-            }).then(result => {
+            Pool.query("UPDATE clientes SET nombre = ?, apPaterno = ?, apMaterno = ? WHERE id = ? AND idUsuario = ?", [
+                cliente.nombre,
+                cliente.apPaterno,
+                cliente.apMaterno,
+                idCliente,
+                idUsuario,
+            ]).then(result => {
                 resolve(result);
             }).catch(err => {
                 reject(err);
@@ -168,31 +156,29 @@ module.exports = (function() {
 
     Clientes.prototype.modificarDomicilio = (idCliente, domicilio) => {
         return new Promise((resolve, reject) => {
-            Mysql.createConnection(config).then(mysqlConn => {
-                const queryString = 
-                `UPDATE cliente_domicilio SET
-                    estado = ?,
-                    municipio = ?,
-                    cp = ?,
-                    colonia = ?,
-                    calle = ?,
-                    noExterno = ?,
-                    noInterno = ?,
-                    referencia = ?
-                WHERE id = ? AND idUsuario = ?`;
-                return mysqlConn.query(queryString, [
-                    domicilio.estado,
-                    domicilio.municipio,
-                    domicilio.cp,
-                    domicilio.colonia,
-                    domicilio.calle,
-                    domicilio.noExterno,
-                    domicilio.noInterno,
-                    domicilio.referencia,
-                    idCliente,
-                    idUsuario
-                ]);
-            }).then(result => {
+            const queryString = 
+            `UPDATE cliente_domicilio SET
+                estado = ?,
+                municipio = ?,
+                cp = ?,
+                colonia = ?,
+                calle = ?,
+                noExterno = ?,
+                noInterno = ?,
+                referencia = ?
+            WHERE id = ? AND idUsuario = ?`;
+            Pool.query(queryString, [
+                domicilio.estado,
+                domicilio.municipio,
+                domicilio.cp,
+                domicilio.colonia,
+                domicilio.calle,
+                domicilio.noExterno,
+                domicilio.noInterno,
+                domicilio.referencia,
+                idCliente,
+                idUsuario
+            ]).then(result => {
                 resolve(result);
             }).catch(err => {
                 reject(err);
@@ -202,12 +188,10 @@ module.exports = (function() {
 
     Clientes.prototype.eliminar = (idUsuario, idCliente) => {
         return new Promise((resolve, reject) => {
-            Mysql.createConnection(config).then(mysqlConn => {
-                return mysqlConn.query("UPDATE clientes SET deletedAt = CURRENT_TIMESTAMP WHERE id = ? AND idUsuario = ?", [
-                    idCliente,
-                    idUsuario,
-                ]);
-            }).then(result => {
+            Pool.query("UPDATE clientes SET deletedAt = CURRENT_TIMESTAMP WHERE id = ? AND idUsuario = ?", [
+                idCliente,
+                idUsuario,
+            ]).then(result => {
                 resolve(result);
             }).catch(err => {
                 reject(err);

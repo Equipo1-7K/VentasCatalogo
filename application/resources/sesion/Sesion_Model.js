@@ -1,6 +1,7 @@
 const Mysql = require("promise-mysql");
 const UUID = require("uuid/v4");
 const config = __appconfig.database;
+const Pool = require("../../system/MysqlPool");
 
 // Declaración de la clase
 module.exports = (function() {    
@@ -11,12 +12,10 @@ module.exports = (function() {
         // Obtenemos el usuario
         token = UUID();
         return new Promise((resolve, reject) => {
-            Mysql.createConnection(config).then(mysqlConn => {
-                return mysqlConn.query("INSERT INTO sesiones VALUES (?, ?, DEFAULT, DEFAULT)", [
-                    token,
-                    usuario.id
-                ])
-            }).then(() => {
+            Pool.query("INSERT INTO sesiones VALUES (?, ?, DEFAULT, DEFAULT)", [
+                token,
+                usuario.id
+            ]).then(() => {
                 usuario.token = token;
                 resolve(usuario);
             }).catch(err => {
@@ -27,11 +26,9 @@ module.exports = (function() {
 
     Sesion_Model.prototype.cerrarSesion = (token) => {
         return new Promise((resolve, reject) => {
-            Mysql.createConnection(config).then(mysqlConn => {
-                return mysqlConn.query("UPDATE sesiones SET fechaCierre = CURRENT_TIMESTAMP WHERE token = ? AND fechaCierre IS NULL", [
-                    token
-                ])
-            }).then(result => {
+            Pool.query("UPDATE sesiones SET fechaCierre = CURRENT_TIMESTAMP WHERE token = ? AND fechaCierre IS NULL", [
+                token
+            ]).then(result => {
                 if (result.affectedRows > 0) { // Si efectivamente se cerró una sesión
                     resolve({status: "ok", message: "La sesión ha sido cerrada con éxito"})
                 } else { // Si no, pos no pues..
@@ -45,11 +42,9 @@ module.exports = (function() {
 
     Sesion_Model.prototype.verificarSesion = (token) => {
         return new Promise((resolve, reject) => {
-            Mysql.createConnection(config).then(mysqlConn => {
-                return mysqlConn.query("SELECT idUsuario FROM sesiones WHERE token = ? AND fechaCierre IS NULL", [
-                    token
-                ])
-            }).then(result => {
+            Pool.query("SELECT idUsuario FROM sesiones WHERE token = ? AND fechaCierre IS NULL", [
+                token
+            ]).then(result => {
                 if (result.length > 0) {
                     resolve(result[0]);
                 } else {

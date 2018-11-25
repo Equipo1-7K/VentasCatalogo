@@ -24,6 +24,8 @@ module.exports = (function() {
      *         type: string
      *       apMaterno:
      *         type: string
+     *       telefono:
+     *         type: string
      *       domicilio:
      *         type: object
      *         properties:
@@ -56,6 +58,7 @@ module.exports = (function() {
      *      - nombre
      *      - apPaterno
      *      - apMaterno
+     *      - telefono
      */
     Clientes_Controller.prototype.agregar = (req, res) => {
         const response = new HttpResponse(res);
@@ -190,10 +193,13 @@ module.exports = (function() {
      *         type: string
      *       apMaterno:
      *         type: string
+     *       telefono:
+     *         type: string
      *     required:
      *      - nombre
      *      - apPaterno
      *      - apMaterno
+     *      - telefono
      */
     Clientes_Controller.prototype.modificar = (req, res) => {
         const response = new HttpResponse(res);

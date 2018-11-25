@@ -1,6 +1,6 @@
 module.exports = {
     swagger: {
-        host: "localhost",
+        host: "192.168.1.97",
         port: 3000,
         basePath: "/api"
     },
@@ -8,6 +8,7 @@ module.exports = {
         host: "localhost",
         user: "root",
         password: "123456",
-        database: "ventasCatalogo"
+        database: "ventasCatalogo",
+        connectionLimit: 20
     }
-};
+};  
