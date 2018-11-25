@@ -19,8 +19,8 @@
  *         description: UUID de la imágen en formato 00000000-0000-0000-0000-000000000000
  */
 
-const Mysql = require("promise-mysql");
-const config = require("../../../appConfig").database;
+
+const Pool = require('../../system/MysqlPool')
 
 // Declaración de la clase
 module.exports = (function() {
@@ -77,11 +77,9 @@ module.exports = (function() {
 
     Productos.prototype.obtenerTotal = (idUsuario) => {
         return new Promise((resolve, reject) => {
-            Mysql.createConnection(config).then(mysqlConn => {
-                return mysqlConn.query("SELECT COUNT(*) AS total FROM productos WHERE idUsuario = ? AND deletedAt IS NULL", [
-                    idUsuario,
-                ]);
-            }).then(result => {
+            Pool.query("SELECT COUNT(*) AS total FROM productos WHERE idUsuario = ? AND deletedAt IS NULL", [
+                idUsuario,
+            ]).then(result => {
                 resolve(result[0].total);
             }).catch(err => {
                 reject(err);

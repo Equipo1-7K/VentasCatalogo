@@ -38,8 +38,7 @@
  *           
  */
 
-const Mysql = require("promise-mysql");
-const config = require("../../../appConfig").database;
+const Pool = require('../../system/MysqlPool')
 
 // Declaración de la clase
 module.exports = (function() {
