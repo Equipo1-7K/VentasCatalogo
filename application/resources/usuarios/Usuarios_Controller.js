@@ -67,6 +67,7 @@ module.exports = (function() {
             return usuario.crear(req.body);
         }).catch(sqlErr => {
             // Validamos duplicados desde base de datos
+            if (sqlErr instanceof ValidationException) throw sqlErr;
 
             if (sqlErr.errno && sqlErr.errno == 1062) { // Duplicado
                 throw new ControllerException("conflict", {message: "El correo ya está registrado"});

@@ -49,12 +49,15 @@ module.exports = (function() {
         const response = new HttpResponse(res);
         const sesion = new Sesion_Model();
         const usuario = new Usuarios_Model();
+        console.log("paso 0")
         validator.validateModel(req.body, "Sesion_InicioSesion_Req").then(data => {
+            console.log("paso 1")
             if (data.errors.length > 0) throw new ValidationException(data.errors);
 
             // Obtenemos las contraseñas del usuario
             return usuario.obtenerContrasenaPorCoreo(req.body.correo);
         }).then(contrasena => {
+            console.log("paso 2")
             // Control de errores
             if (contrasena.length == 0) {
                 throw new ControllerException("unauthorized", {message: "Usuario y/o Contraseña incorrecto(s)"});
@@ -66,6 +69,7 @@ module.exports = (function() {
             // Obtenemos los datos del usuario
             return usuario.obtenerParaLogin(req.body.correo, contrasenaBD);
         }).then(usuario => {
+            console.log("paso 3")
             // Control de errores
             if (usuario.length == 0) {
                 throw new ControllerException("unauthorized", {message: "Usuario y/o Contraseña incorrecto(s)"});
@@ -74,9 +78,11 @@ module.exports = (function() {
             // Creamos la sesión
             return sesion.iniciarSesion(usuario[0]);
         }).then(usuario => {
+            console.log("paso 4")
             // Devolvemos el usuario con su token
             response.created(usuario);
         }).catch(ControllerException, ValidationException, err => {
+            console.log("Ya tronó")
             err.response(response);
         }).catch(err => {   
             console.error(err);

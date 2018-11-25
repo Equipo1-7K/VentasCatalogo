@@ -1,6 +1,5 @@
 __appconfig = require("./appConfig");
 global.Promise = require("bluebird").Promise;
-
 const app = require("./application/app");
 
 
