@@ -127,14 +127,21 @@ module.exports = (function() {
      *         properties:
      *           tipo:
      *             type: string
+     *             enum:
+     *              - Credito
+     *              - Contado
      *           acuerdo:
-     *              type: string
+     *             type: string
+     *             enum:
+     *              - Parcialidades
+     *              - Dinero
      *           cantidad:
      *              type: number
      *           intervaloPago:
      *              type: integer
      *           fechaPrimerPago:
      *              type: string
+     *              pattern: '^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])(?:( [0-2][0-9]):([0-5][0-9]):([0-5][0-9]))?$'
      *         required:
      *          - tipo 
      *          - acuerdo 

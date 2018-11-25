@@ -20,6 +20,7 @@ module.exports = (function() {
      *     properties:
      *       nombre:
      *         type: string
+     *         maxLength: 50
      *       descripcion:
      *         type: string
      *       precio:
@@ -147,6 +148,7 @@ module.exports = (function() {
      *     properties:
      *       nombre:
      *         type: string
+     *         maxLength: 50
      *       descripcion:
      *         type: string
      *       precio:
