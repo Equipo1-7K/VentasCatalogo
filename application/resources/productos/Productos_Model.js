@@ -99,10 +99,17 @@ module.exports = (function() {
 
     Productos.prototype.modificar = (idUsuario, idProducto, producto) => {
         return new Promise((resolve, reject) => {
-            Pool.query("UPDATE productos SET nombre = ?, descripcion = ?, precio = ? WHERE id = ? AND idUsuario = ?", [
+            const base64Data = producto.imagen.replace(/^data:image\/png;base64,/, "");
+            const uuidImagen = UUID();
+            fs.writeFile(`application/public/img/${uuidImagen}.jpg`, base64Data, 'base64', function(err) {
+                console.log(err);
+            });
+
+            Pool.query("UPDATE productos SET nombre = ?, descripcion = ?, precio = ?, imagen = ? WHERE id = ? AND idUsuario = ?", [
                 producto.nombre,
                 producto.descripcion,
                 producto.precio,
+                producto.imagen,
                 idProducto,
                 idUsuario,
             ]).then(result => {

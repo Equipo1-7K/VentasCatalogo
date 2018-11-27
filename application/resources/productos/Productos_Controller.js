@@ -181,7 +181,9 @@ module.exports = (function() {
 
             return Producto.modificar(req.idUsuario, req.params.id, req.body);
         }).then(data => {
-            response.noContent(null);
+            return Producto.obtenerPorId(req.idUsuario, req.params.id)
+        }).then(producto => {
+            response.ok(producto)
         }).catch(ControllerException, ValidationException, err => { // Errores de controlador
 
             // Se responde con lo definido en el objeto de la exepción
