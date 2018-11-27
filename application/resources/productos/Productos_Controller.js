@@ -25,10 +25,13 @@ module.exports = (function() {
      *         type: string
      *       precio:
      *         type: number
+     *       imagen:
+     *         type: string
      *     required:
      *      - nombre
      *      - descripcion
      *      - precio
+     *      - imagen
      */
     Productos_Controller.prototype.agregar = (req, res) => {
         const response = new HttpResponse(res);
@@ -153,10 +156,13 @@ module.exports = (function() {
      *         type: string
      *       precio:
      *         type: number
+     *       imagen:
+     *         type: string
      *     required:
      *      - nombre
      *      - descripcion
      *      - precio
+     *      - imagen
      */
     Productos_Controller.prototype.modificar = (req, res) => {
         const response = new HttpResponse(res);

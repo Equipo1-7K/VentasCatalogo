@@ -81,3 +81,6 @@ dist/*
 
 application.old/
 ssl/
+
+# carpeta de imágenes
+application/public/*

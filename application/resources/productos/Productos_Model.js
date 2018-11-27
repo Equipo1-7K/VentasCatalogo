@@ -21,6 +21,8 @@
 
 
 const Pool = require('../../system/MysqlPool')
+const UUID = require('uuid/v4')
+const fs = require('fs')
 
 // Declaración de la clase
 module.exports = (function() {
@@ -29,11 +31,19 @@ module.exports = (function() {
     
     Productos.prototype.agregar = (idUsuario, producto) => {
         return new Promise((resolve, reject) => { // El UUID de la imágen debe de modificarse luego
-            Pool.query("INSERT INTO productos VALUES (NULL, ?, ?, ?, ?, '00000000-0000-0000-0000-000000000000', DEFAULT, DEFAULT, NULL)", [
+
+            const base64Data = producto.imagen.replace(/^data:image\/png;base64,/, "");
+            const uuidImagen = UUID();
+            fs.writeFile(`application/public/img/${uuidImagen}.jpg`, base64Data, 'base64', function(err) {
+              console.log(err);
+            });
+
+            Pool.query("INSERT INTO productos VALUES (NULL, ?, ?, ?, ?, ?, DEFAULT, DEFAULT, NULL)", [
                 idUsuario,
                 producto.nombre,
                 producto.descripcion,
                 producto.precio,
+                uuidImagen
             ]).then(result => {
                 resolve(result);
             }).catch(err => {

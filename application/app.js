@@ -10,9 +10,12 @@ const swagger = require("swagger-ui-express");
 const app = express();
 app.use(cors());
 
+// Asignamos archivos fijos
+app.use('/public', express.static('application/public'));
+
 // Inicializamos body-parser
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json({limit: '50mb', extended: true}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 // Inicializamos swaggerSpec
 global.swaggerSpec = swaggerJSDoc(swaggerConfig);
