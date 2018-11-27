@@ -229,12 +229,47 @@ module.exports = (function() {
      *       correo:
      *         type: string
      *         maxLength: 60
+     *       domicilio:
+     *         type: object
+     *         properties:
+     *           estado:
+     *             type: string
+     *             maxLength: 19
+     *           municipio:
+     *             type: string
+     *             maxLength: 50
+     *           cp:
+     *             type: string
+     *             maxLength: 5
+     *           colonia:
+     *             type: string
+     *             maxLength: 30
+     *           calle:
+     *             type: string
+     *             maxLength: 30
+     *           noExterno:
+     *             type: string
+     *             maxLength: 10
+     *           noInterno:
+     *             type: string
+     *             maxLength: 5
+     *           referencia:
+     *             type: string
+     *             maxLength: 50
+     *         required:
+     *          - estado 
+     *          - municipio 
+     *          - cp 
+     *          - colonia 
+     *          - calle 
+     *          - noExterno 
      *     required:
      *      - nombre
      *      - apPaterno
      *      - apMaterno
      *      - telefono
      *      - correo
+     *      - domicilio
      */
     Clientes_Controller.prototype.modificar = (req, res) => {
         const response = new HttpResponse(res);
@@ -252,80 +287,6 @@ module.exports = (function() {
             if (data.errors.length > 0) throw new ValidationException(data.errors);
 
             return Cliente.modificar(req.idUsuario, req.params.id, req.body);
-        }).then(data => {
-            response.noContent(null);
-        }).catch(ControllerException, ValidationException, err => { // Errores de controlador
-
-            // Se responde con lo definido en el objeto de la exepción
-            err.response(response);
-
-        }).catch(err => { // Error desconocido
-
-            // Se imprime en consola el error
-            console.error(err)
-
-            // Se muestra al usuario un error genérico
-            response.ErrorGenerico();
-        });
-    }
-
-    /**
-     * @swagger
-     * definitions:
-     * 
-     *   Cliente_ModificarDomicilio_Req:
-     *     type: object
-     *     properties:
-     *       estado:
-     *         type: string
-     *         maxLength: 19
-     *       municipio:
-     *         type: string
-     *         maxLength: 50
-     *       cp:
-     *         type: string
-     *         maxLength: 5
-     *       colonia:
-     *         type: string
-     *         maxLength: 30
-     *       calle:
-     *         type: string
-     *         maxLength: 30
-     *       noExterno:
-     *         type: string
-     *         maxLength: 10
-     *       noInterno:
-     *         type: string
-     *         maxLength: 5
-     *       referencia:
-     *         type: string
-     *         maxLength: 50
-     *     required:
-     *      - estado
-     *      - municipio
-     *      - cp
-     *      - colonia
-     *      - calle
-     *      - noExterno
-     *      - noInterno
-     *      - referencia
-     */
-    Clientes_Controller.prototype.modificarDomicilio = (req, res) => {
-        const response = new HttpResponse(res);
-        const Cliente = new Clientes_Model();
-
-        Cliente.obtenerPorId(req.idUsuario, req.params.id).then(cliente => {
-            if (!cliente) {
-                throw new ControllerException("notFound", {message: "El cliente no existe"})
-            }
-
-            return validator.validateModel(req.body, "Cliente_ModificarDomicilio_Req");
-        }).then(data => {
-
-            // Si hay errores en la validación, se envía la exepción
-            if (data.errors.length > 0) throw new ValidationException(data.errors);
-
-            return Cliente.modificarDomicilio(req.params.id, req.body);
         }).then(data => {
             response.noContent(null);
         }).catch(ControllerException, ValidationException, err => { // Errores de controlador

@@ -139,17 +139,44 @@ module.exports = (function() {
 
     Clientes.prototype.modificar = (idUsuario, idCliente, cliente) => {
         return new Promise((resolve, reject) => {
-            Pool.query("UPDATE clientes SET nombre = ?, apPaterno = ?, apMaterno = ? WHERE id = ? AND idUsuario = ?", [
+            const domicilio = cliente.domicilio;
+            delete cliente.domicilio;
+            const p1 = Pool.query("UPDATE clientes SET nombre = ?, apPaterno = ?, apMaterno = ?, telefono = ?, correo = ? WHERE id = ? AND idUsuario = ?", [
                 cliente.nombre,
                 cliente.apPaterno,
                 cliente.apMaterno,
+                cliente.telefono,
+                cliente.correo,
                 idCliente,
                 idUsuario,
-            ]).then(result => {
-                resolve(result);
-            }).catch(err => {
+            ]);
+            const queryString = 
+            `UPDATE cliente_domicilio SET
+                estado = ?,
+                municipio = ?,
+                cp = ?,
+                colonia = ?,
+                calle = ?,
+                noExterno = ?,
+                noInterno = ?,
+                referencia = ?
+            WHERE idCliente = ?`;
+            const p2 = Pool.query(queryString, [
+                domicilio.estado,
+                domicilio.municipio,
+                domicilio.cp,
+                domicilio.colonia,
+                domicilio.calle,
+                domicilio.noExterno,
+                domicilio.noInterno,
+                domicilio.referencia,
+                idCliente
+            ]);
+            Promise.all([p1, p2]).then(result => {
+                resolve(result)
+            }).then(err => {
                 reject(err);
-            });
+            })
         })
     }
 
