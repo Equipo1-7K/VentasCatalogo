@@ -49,7 +49,7 @@ module.exports = (function() {
         return new Promise((resolve, reject) => {
             let metaResult;
 
-            Pool.query("INSERT INTO clientes VALUES (NULL, ?, ?, ?, ?, ?, ? DEFAULT, DEFAULT, NULL)", [
+            Pool.query("INSERT INTO clientes VALUES (NULL, ?, ?, ?, ?, ?, ?, DEFAULT, DEFAULT, NULL)", [
                 idUsuario,
                 cliente.nombre,
                 cliente.apPaterno,
