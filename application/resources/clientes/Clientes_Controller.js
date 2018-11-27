@@ -161,9 +161,7 @@ module.exports = (function() {
     Clientes_Controller.prototype.obtenerPaginado = (req, res) => {
         const response = new HttpResponse(res);
         const Cliente = new Clientes_Model();
-
         let clientesObtenidos = { };
-
         try {
             req.query.page = parseInt(req.query.page);
             req.query.perPage = parseInt(req.query.perPage);
@@ -175,7 +173,21 @@ module.exports = (function() {
 
             return Cliente.obtenerPaginado(req.idUsuario, req.query.page, req.query.perPage);
         }).then(clientes => {
+            const PromiseArray = [];
             clientesObtenidos.items = clientes;
+            clientes.forEach((cliente, index, array) => {
+                const p = new Promise((resolve, reject) => {
+                    Cliente.obtenerDomicilioPorId(req.idUsuario, cliente.id).then(domicilio => {
+                        array[index].domicilio = domicilio
+                        resolve()
+                    }).catch(err => reject(err))
+                })
+
+                PromiseArray.push(p)
+            });
+
+            return Promise.all(PromiseArray);
+        }).then(clientes => {
             return Cliente.obtenerTotal(req.idUsuario);
         }).then(total => {
             clientesObtenidos.total = total || 0;
