@@ -162,7 +162,6 @@ module.exports = (function() {
      *      - nombre
      *      - descripcion
      *      - precio
-     *      - imagen
      */
     Productos_Controller.prototype.modificar = (req, res) => {
         const response = new HttpResponse(res);
