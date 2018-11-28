@@ -89,7 +89,7 @@ module.exports = (function() {
         const Sesion = new Sesion_Model();
 
         Sesion.cerrarSesion(req.token).then(cierre => {
-            response.noContent(null);
+            response.noContent();
         }).catch(err => {
             if (err.status == "exception") {
                 response.unauthorized(err);
