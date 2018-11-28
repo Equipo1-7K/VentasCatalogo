@@ -317,7 +317,7 @@ module.exports = (function() {
 
             return Cliente.eliminar(req.idUsuario, req.params.id);
         }).then(data => {
-            response.noContent(null);
+            response.noContent();
         }).catch(ControllerException, ValidationException, err => { // Errores de controlador
 
             // Se responde con lo definido en el objeto de la exepción
