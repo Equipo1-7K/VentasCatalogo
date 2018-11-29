@@ -492,6 +492,25 @@ module.exports = (function() {
         })
     }
 
+    Ventas.prototype.obtenerClientePorIdVenta = (idUsuario, idVenta) => {
+        const clientes = new Clientes();
+        return new Promise((resolve, reject) => {
+            Pool.query('SELECT idCliente from ventas WHERE id = ?', [
+                idVenta
+            ]).then(result => {
+                console.log(result[0].idCliente);
+                return clientes.obtenerPorId(idUsuario, result[0].idCliente)
+            }).then(async cliente => {
+                if (!cliente) resolve(null)
+                const domicilio = await clientes.obtenerDomicilioPorId(idUsuario, cliente.id);
+                cliente.domicilio = domicilio;
+                resolve(cliente);
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    }
+
     return Ventas;
 })();
 
