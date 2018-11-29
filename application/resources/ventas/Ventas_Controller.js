@@ -139,15 +139,14 @@ module.exports = (function() {
      *              type: number
      *           intervaloPago:
      *              type: integer
+     *           horaPago:
+     *              type: string
+     *              pattern: '^(?:[01]\d|2[0123]):(?:[012345]\d):(?:[012345]\d)$'
      *           fechaPrimerPago:
      *              type: string
      *              pattern: '^([0-9]{2,4})-([0-1][0-9])-([0-3][0-9])(?:( [0-2][0-9]):([0-5][0-9]):([0-5][0-9]))?$'
      *         required:
      *          - tipo 
-     *          - acuerdo 
-     *          - cantidad 
-     *          - intervaloPago 
-     *          - fechaPrimerPago
      *       productos:
      *         type: array
      *         items:

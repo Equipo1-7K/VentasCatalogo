@@ -91,6 +91,8 @@
 
 const Moment = require("moment");
 const Pool = require("../../system/MysqlPool");
+
+const Clientes = require('../clientes/Clientes_Model');
 // Declaración de la clase
 module.exports = (function() {
     
@@ -104,17 +106,20 @@ module.exports = (function() {
         if (venta.pago.tipo === "Contado") { // Si es de contado, generamos un sólo abono que posteriormente se va a pagar
             venta.pago.acuerdo = "Parcialidades";
             venta.pago.cantidad = 1;
+            venta.pago.intervaloPago = 0;
             venta.pago.fechaPrimerPago = Moment().format("YYYY-MM-DD HH:mm:ss");
+            venta.pago.horaPago = Moment().format("HH:mm:ss")
         }
 
         return new Promise((resolve, reject) => {
-            Pool.query("INSERT INTO ventas VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, DEFAULT, DEFAULT, NULL)", [
+            Pool.query("INSERT INTO ventas VALUES (NULL, ?, ?, ?, ?, ?, ?, ?, ?, DEFAULT, DEFAULT, NULL)", [
                 idUsuario,
                 venta.idCliente,
                 venta.pago.tipo,
                 venta.pago.acuerdo,
                 venta.pago.cantidad,
                 venta.pago.intervaloPago,
+                venta.pago.horaPago,
                 venta.pago.fechaPrimerPago
             ]).then(result => {
                 metaVenta = result;
